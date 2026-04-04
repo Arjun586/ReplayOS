@@ -1,8 +1,9 @@
-// client/src/components/IncidentTable.tsx
+
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
 import { AlertCircle, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Tell TypeScript exactly what our data looks like
 type Incident = {
@@ -16,6 +17,7 @@ type Incident = {
 export default function IncidentTable() {
     const [incidents, setIncidents] = useState<Incident[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
     //TODO: : can we seprate this ?
     //  Fetch data from our Express backend when the component loads
@@ -61,7 +63,9 @@ export default function IncidentTable() {
             </thead>
             <tbody className="divide-y divide-surfaceBorder/50">
                 {incidents.map((incident) => (
-                    <tr key={incident.id} className="hover:bg-surfaceBorder/20 transition-colors cursor-pointer">
+                    <tr key={incident.id} 
+                    onClick={() => navigate(`/incident/${incident.id}`)}
+                    className="hover:bg-surfaceBorder/20 transition-colors cursor-pointer">
                     <td className="px-6 py-4 font-medium text-gray-200 flex items-center gap-3">
                         <AlertCircle size={16} className="text-muted" />
                         {incident.title}

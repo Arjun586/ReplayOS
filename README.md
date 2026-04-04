@@ -61,12 +61,41 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] Set up Supabase PostgreSQL and synced relational schema via Prisma v5.
 - [x] Created `Incident API` with strict Zod validation.
 - [x] Built live, auto-refreshing React `IncidentTable.tsx`.
-- [x] **New:** Built Multer-powered file upload middleware in Express.
-- [x] **New:** Developed Node.js parsing service to dynamically extract errors from raw JSON logs and bulk-insert `LogEvents` into Postgres.
-- [x] **New:** Created animated, Drag-and-Drop `FileUploader.tsx` in React using Framer Motion and Axios.
-- [x] **New:** Built Express Timeline API endpoint to fetch a parent incident and all associated time-sorted log events.
-- [ ] Connect React Router to navigate between Dashboard and Timeline.
-- [ ] Build the interactive Replay Timeline UI component.
+- [x] Built Multer-powered file upload middleware in Express.
+- [x] Developed Node.js parsing service to dynamically extract errors from raw JSON logs and bulk-insert `LogEvents` into Postgres.
+- [x] Created animated, Drag-and-Drop `FileUploader.tsx` in React using Framer Motion and Axios.
+- [x] Built Express Timeline API endpoint to fetch a parent incident and all associated time-sorted log events.
+- [x] Configured React Router v6 to handle deep-linking (`/incident/:id`).
+- [x] Built the `IncidentTimeline.tsx` page featuring a staggered, Framer Motion-powered visual event timeline.
+- [x] Integrated `@uiw/react-md-editor` and built the `PostmortemModal.tsx` generator to synthesize raw timeline data into a copy-ready Markdown report.
+
+---
+
+## 🗺️ Roadmap & Future Scope
+
+This project is continually evolving from a single-user MVP into a fully-fledged enterprise SaaS product. Here is the exact roadmap for upcoming features and architectural upgrades:
+
+### Phase 2: Enterprise Multi-Tenancy & RBAC (In Progress)
+- [ ] **Multi-Tenant Architecture:** Transition from a single workspace to a full B2B SaaS model (`Organization` -> `Projects` -> `Incidents`).
+- [ ] **Authentication & Security:** Implement secure JWT-based authentication with bcrypt password hashing.
+- [ ] **Role-Based Access Control (RBAC):** Differentiate permissions between Organization Admins and Team Members.
+- [ ] **Dedicated Auth UI:** Build premium login, registration, and organization onboarding screens.
+
+### Phase 3: Observability & Distributed Tracing
+- [ ] **OpenTelemetry Integration:** Ingest standardized OTLP traces alongside raw logs.
+- [ ] **Trace Correlation:** Automatically map individual log events to their parent request traces across microservices.
+- [ ] **Service Dependency Graphs:** Visualize which microservice triggered upstream failures.
+
+### Phase 4: Automated Intelligence
+- [ ] **Incident Clustering:** Use error signature hashes (service + route + status) to group similar incoming logs into existing incidents, preventing alert fatigue.
+- [ ] **AI-Assisted Root Cause Analysis:** Integrate an LLM (via OpenAI/Anthropic API) to analyze raw log arrays and suggest probable root cause hypotheses inside the postmortem modal.
+
+### Phase 5: Enterprise Scalability
+- [ ] **Background Workers:** Move the `parseLogFile` service out of the Express request cycle and into a Redis-backed BullMQ worker queue to handle 100MB+ files without blocking the API.
+- [ ] **S3 Object Storage:** Migrate raw log file storage from the local disk to an S3-compatible cloud bucket (e.g., AWS S3 or Cloudflare R2).
+- [ ] **Full-Text Search:** Implement PostgreSQL `tsvector` indexing or Elasticsearch for rapid log querying across millions of events.
+
+---
 
 ## 🚀 How to Run Locally
 
@@ -81,12 +110,16 @@ cd failure-replay
 cd server
 npm install
 # Ensure your .env file contains your DATABASE_URL
-npm run dev
 ```
 
 **3. Start the Frontend UI**
 ```bash
-cd ../client
+cd client
 npm install
+```
+
+**4. Run Concurrently**
+From the root `failure-replay` folder, run both the API and UI at the same time:
+```bash
 npm run dev
 ```
