@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id        String     @id @default(uuid())
+  name      String
+  incidents Incident[]
+  createdAt DateTime   @default(now())
+}
+
+model Incident {
+  id          String      @id @default(uuid())
+  title       String
+  description String?     
+  status      String      @default("open") 
+  severity    String      @default("high") 
+  workspaceId String
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  events      LogEvent[]  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model LogEvent {
+  id            String   @id @default(uuid())
+  timestamp     DateTime 
+  level         String   
+  message       String   
+  service       String?  
+  correlationId String?  
+  incidentId    String
+  incident      Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+}
