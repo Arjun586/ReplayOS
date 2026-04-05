@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import incidentRoutes from './routes/incident.routes';
 import uploadRoutes from './routes/upload.routes';
+import authRoutes from './routes/auth.routes';
 
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/incidents', incidentRoutes);
 
 app.use('/api/upload', uploadRoutes);
+app.use('/api/auth', authRoutes);
 
 // --- START THE SERVER ---
 app.listen(PORT, () => {

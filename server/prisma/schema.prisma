@@ -7,12 +7,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Workspace {
-  id        String     @id @default(uuid())
-  name      String
-  incidents Incident[]
-  createdAt DateTime   @default(now())
+// --- Authentication & RBAC ---
+
+model User {
+  id           String               @id @default(uuid())
+  email        String               @unique
+  passwordHash String
+  name         String?
+  memberships  OrganizationMember[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 }
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+model Organization {
+  id        String               @id @default(uuid())
+  name      String
+  slug      String               @unique
+  members   OrganizationMember[]
+  projects  Project[]
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+}
+
+// Junction table mapping Users to Organizations with a specific Role
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  userId         String
+  organizationId String
+  role           Role         @default(MEMBER)
+  
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // A user can only have one membership record per organization
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+}
+
+// --- Multi-Tenancy Hierarchy ---
+
+model Project {
+  id             String       @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  incidents      Incident[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// --- Core Data ---
 
 model Incident {
   id          String      @id @default(uuid())
@@ -20,8 +70,8 @@ model Incident {
   description String?     
   status      String      @default("open") 
   severity    String      @default("high") 
-  workspaceId String
-  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  projectId   String
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   events      LogEvent[]  
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

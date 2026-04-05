@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UploadCloud, CheckCircle2, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import { apiClient } from '../api/client';
 
 export default function FileUploader( { onUploadSuccess }: { onUploadSuccess: () => void } ) {
     const [isDragging, setIsDragging] = useState(false);
@@ -24,7 +24,7 @@ export default function FileUploader( { onUploadSuccess }: { onUploadSuccess: ()
 
         try {
             // POST the file to the Express route we just built
-            const response = await axios.post('http://localhost:5000/api/upload', formData, {
+            const response = await apiClient.post('/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             

@@ -1,11 +1,11 @@
 // client/src/pages/IncidentTimeline.tsx
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { ArrowLeft, AlertCircle, Info, AlertTriangle, FileTerminal, FileText } from 'lucide-react';
 import PostmortemModal from '../components/PostmortemModal'; // 
+import { apiClient } from '../api/client';
 // Define the exact shape of the data we get from our Express API
 type LogEvent = {
     id: string;
@@ -36,7 +36,7 @@ export default function IncidentTimeline() {
     useEffect(() => {
         const fetchTimeline = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/incidents/${id}/timeline`);
+            const response = await apiClient.get(`/incidents/${id}/timeline`);
             setIncident(response.data.data);
         } catch (error) {
             console.error("Failed to fetch timeline", error);

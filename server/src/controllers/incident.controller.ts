@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { z } from 'zod';
 
-//Validate incoming data before it touches the database!
+// Validate incoming data before it touches the database!
 const createIncidentSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters long"),
     description: z.string().optional(),
@@ -15,21 +15,27 @@ export const createIncident = async (req: Request, res: Response): Promise<void>
         // Zod checks the request body. If it's bad, it throws an error immediately.
         const validatedData = createIncidentSchema.parse(req.body);
 
-        // Find the first workspace, or create a default one if DB is empty
-        let workspace = await prisma.workspace.findFirst();
-        if (!workspace) {
-            workspace = await prisma.workspace.create({
-                data: { name: 'Default Team Workspace' }
+        // Find the first project, or create a default one (and org) if DB is empty
+        let project = await prisma.project.findFirst();
+        if (!project) {
+            let org = await prisma.organization.findFirst();
+            if (!org) {
+                org = await prisma.organization.create({
+                    data: { name: 'Default Org', slug: 'default-org' }
+                });
+            }
+            project = await prisma.project.create({
+                data: { name: 'Default Project', organizationId: org.id }
             });
         }
 
-        // Save the new incident to Supabase
+        // Save the new incident to Postgres via Prisma
         const incident = await prisma.incident.create({
             data: {
                 title: validatedData.title,
                 description: validatedData.description,
                 severity: validatedData.severity,
-                workspaceId: workspace.id,
+                projectId: project.id, // <-- Replaced workspaceId with projectId
             },
         });
 
@@ -46,7 +52,7 @@ export const createIncident = async (req: Request, res: Response): Promise<void>
             return;
         }
         
-        // If Supabase fails, send a 500 Internal Server Error
+        // If Database fails, send a 500 Internal Server Error
         console.error("Error creating incident:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
@@ -56,7 +62,7 @@ export const getIncidents = async (req: Request, res: Response): Promise<void> =
     try {
         const incidents = await prisma.incident.findMany({
             orderBy: { createdAt: 'desc' },
-            include: { workspace: true } // This also fetches the Workspace name!
+            include: { project: true } // <-- Replaced workspace with project
         });
 
         res.status(200).json({
@@ -69,7 +75,6 @@ export const getIncidents = async (req: Request, res: Response): Promise<void> =
     }
 };
 
-
 // Fetch a single incident AND all its associated log events, sorted by time
 export const getIncidentTimeline = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -79,9 +84,9 @@ export const getIncidentTimeline = async (req: Request, res: Response): Promise<
             where: { id },
             include: {
                 events: {
-                orderBy: { timestamp: 'asc' } // MUST be ascending so the timeline flows top-to-bottom
+                    orderBy: { timestamp: 'asc' } // MUST be ascending so the timeline flows top-to-bottom
                 },
-                workspace: true
+                project: true // <-- Replaced workspace with project
             }
         });
 
