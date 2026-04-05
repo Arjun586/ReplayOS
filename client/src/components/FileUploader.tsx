@@ -3,11 +3,13 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UploadCloud, CheckCircle2, Loader2 } from 'lucide-react';
 import { apiClient } from '../api/client';
+import { useAuth } from '../contexts/auth';
 
 export default function FileUploader( { onUploadSuccess }: { onUploadSuccess: () => void } ) {
     const [isDragging, setIsDragging] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
     const [fileName, setFileName] = useState<string | null>(null);
+    const { activeProject } = useAuth();
     
     // A hidden input field we trigger when clicking the dropzone
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -15,17 +17,20 @@ export default function FileUploader( { onUploadSuccess }: { onUploadSuccess: ()
     // TODO: can this separate out
     // The actual logic that sends the file to your Express backend
     const handleUpload = async (file: File) => {
+        if (!activeProject) return;
+        
         setFileName(file.name);
         setUploadStatus('uploading');
 
         // To send a file via HTTP POST, we MUST use a FormData object
         const formData = new FormData();
         formData.append('logfile', file); // 'logfile' MUST match the name Multer expects on the backend!
+        formData.append('projectId', activeProject.id);
 
         try {
             // POST the file to the Express route we just built
             const response = await apiClient.post('/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
             
             console.log("Server response:", response.data);

@@ -10,12 +10,21 @@ export interface Organization {
     id: string;
     name: string;
     slug: string;
+    role?: 'ADMIN' | 'MEMBER';
+}
+
+export interface Project {
+    id: string;
+    name: string;
+    organizationId: string;
 }
 
 export interface AuthContextType {
     token: string | null;
     user: User | null;
     activeOrganization: Organization | null;
+    activeProject: Project | null;
+    setActiveProject: (project: Project) => void;    
     login: (token: string, user: User, organizations: Organization[]) => void;
     logout: () => void;
     isAuthenticated: boolean;

@@ -65,10 +65,15 @@ export const register = async (req: Request, res: Response) => {
         );
 
         // Extract the primary organization for the client response
-        const primaryOrg = user.memberships[0].organization;
+        const primaryOrg = user.memberships?.[0]
+            ? {
+                ...user.memberships[0].organization,
+                role: user.memberships[0].role
+            }
+            : null;
 
-        return res.status(201).json({ 
-            token, 
+        return res.status(201).json({
+            token,
             user: { id: user.id, email: user.email, name: user.name },
             organization: primaryOrg
         });
@@ -112,10 +117,15 @@ export const login = async (req: Request, res: Response) => {
             { expiresIn: '7d' }
         );
 
+        const organizations = user.memberships?.map(m => ({
+            ...m.organization,
+            role: m.role
+        })) || [];
+
         return res.status(200).json({
             token,
             user: { id: user.id, email: user.email, name: user.name },
-            organizations: user.memberships.map(m => m.organization)
+            organizations
         });
 
     } catch (error: any) {

@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 import incidentRoutes from './routes/incident.routes';
 import uploadRoutes from './routes/upload.routes';
 import authRoutes from './routes/auth.routes';
+import invitationRoutes from './routes/invitation.routes';
+import projectRoutes from './routes/project.routes';
 
 
 dotenv.config();
@@ -31,6 +33,8 @@ app.use('/api/incidents', incidentRoutes);
 
 app.use('/api/upload', uploadRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/invites', invitationRoutes);
+app.use('/api/projects', projectRoutes);
 
 // --- START THE SERVER ---
 app.listen(PORT, () => {

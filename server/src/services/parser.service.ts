@@ -2,7 +2,7 @@
 import fs from 'fs';
 import { prisma } from '../lib/prisma';
 
-export const parseLogFile = async (filePath: string, originalName: string) => {
+export const parseLogFile = async (filePath: string, originalName: string, projectId: string) => {
     try {
         // Read the file from the local disk
         const fileContent = fs.readFileSync(filePath, 'utf-8');
@@ -21,19 +21,7 @@ export const parseLogFile = async (filePath: string, originalName: string) => {
             ? `Crash: ${firstError.message}` 
             : `Investigation: ${originalName}`;
 
-        // Get or Create a Project (and Organization if needed)
-        let project = await prisma.project.findFirst();
-        if (!project) {
-            let org = await prisma.organization.findFirst();
-            if (!org) {
-                org = await prisma.organization.create({
-                    data: { name: 'Default Org', slug: 'default-org' }
-                });
-            }
-            project = await prisma.project.create({
-                data: { name: 'Default Project', organizationId: org.id }
-            });
-        }
+        
 
         // Create the Incident attached to the Project
         const incident = await prisma.incident.create({
@@ -41,8 +29,8 @@ export const parseLogFile = async (filePath: string, originalName: string) => {
                 title: incidentTitle,
                 description: `Auto-generated from uploaded log file: ${originalName}`,
                 severity: firstError ? 'critical' : 'medium',
-                projectId: project.id, // <-- Replaced workspaceId with projectId
-            },
+                projectId: projectId, 
+            }
         });
 
         // Format all the log lines to match our Postgres LogEvent table

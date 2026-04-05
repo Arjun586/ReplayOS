@@ -25,13 +25,14 @@ enum Role {
 }
 
 model Organization {
-  id        String               @id @default(uuid())
-  name      String
-  slug      String               @unique
-  members   OrganizationMember[]
-  projects  Project[]
-  createdAt DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
+  id          String               @id @default(uuid())
+  name        String
+  slug        String               @unique
+  members     OrganizationMember[]
+  projects    Project[]
+  invitations Invitation[]         // Add this line!
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 }
 
 // Junction table mapping Users to Organizations with a specific Role
@@ -86,4 +87,20 @@ model LogEvent {
   correlationId String?  
   incidentId    String
   incident      Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+}
+
+
+model Invitation {
+  id             String       @id @default(uuid())
+  email          String       // The email being invited
+  organizationId String
+  token          String       @unique // Secure random string for the invite link
+  role           Role         @default(MEMBER) // Admins can invite other Admins or Members
+  expiresAt      DateTime     // Invitations should expire (e.g., in 7 days)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  // Ensure an email can't have duplicate pending invites for the exact same org
+  @@unique([email, organizationId]) 
+  @@index([token])
 }

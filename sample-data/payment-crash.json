@@ -1,0 +1,65 @@
+[
+    {
+        "timestamp": "2026-04-06T10:00:01Z",
+        "level": "INFO",
+        "message": "Incoming POST request to /api/checkout",
+        "service": "api-gateway",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:02Z",
+        "level": "INFO",
+        "message": "Validating JWT session token",
+        "service": "auth-service",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:02Z",
+        "level": "INFO",
+        "message": "Token valid. Checking cart inventory.",
+        "service": "inventory-service",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:03Z",
+        "level": "INFO",
+        "message": "Inventory locked. Initiating payment sequence.",
+        "service": "checkout-service",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:03Z",
+        "level": "INFO",
+        "message": "Opening connection to Stripe API (api.stripe.com)",
+        "service": "payment-worker",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:15Z",
+        "level": "WARNING",
+        "message": "Stripe API response delayed (>10s)",
+        "service": "payment-worker",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:33Z",
+        "level": "ERROR",
+        "message": "ConnectionTimeout: Stripe API failed to respond after 30s",
+        "service": "payment-worker",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:34Z",
+        "level": "ERROR",
+        "message": "Payment processing failed. Releasing inventory locks.",
+        "service": "checkout-service",
+        "correlationId": "tx-998877"
+    },
+    {
+        "timestamp": "2026-04-06T10:00:35Z",
+        "level": "CRITICAL",
+        "message": "504 Gateway Timeout returned to client",
+        "service": "api-gateway",
+        "correlationId": "tx-998877"
+    }
+]

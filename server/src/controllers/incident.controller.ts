@@ -60,15 +60,28 @@ export const createIncident = async (req: Request, res: Response): Promise<void>
 
 export const getIncidents = async (req: Request, res: Response): Promise<void> => {
     try {
+        // Grab the projectId from the query string
+        const { projectId } = req.query;
+
+        // Ensure it exists before querying
+        if (!projectId || typeof projectId !== 'string') {
+            res.status(400).json({ success: false, message: 'projectId is required' });
+            return;
+        }
+
         const incidents = await prisma.incident.findMany({
-            orderBy: { createdAt: 'desc' },
-            include: { project: true } // <-- Replaced workspace with project
+            where: {
+                projectId: projectId // ONLY return incidents for this specific project!
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            include: {
+                project: true
+            }
         });
 
-        res.status(200).json({
-            success: true,
-            data: incidents,
-        });
+        res.status(200).json({ success: true, data: incidents });
     } catch (error) {
         console.error("Error fetching incidents:", error);
         res.status(500).json({ success: false, message: "Internal server error" });

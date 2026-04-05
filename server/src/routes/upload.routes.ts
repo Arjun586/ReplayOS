@@ -19,9 +19,14 @@ router.post('/', upload.single('logfile'), async (req, res) => {
             return;
         }
 
-        //We pass the saved file to our new parser!
-        const newIncident = await parseLogFile(req.file.path, req.file.originalname);
+        const { projectId } = req.body;
+        if (!projectId) {
+            res.status(400).json({ success: false, message: 'projectId is required' });
+            return;
+        }
 
+        //We pass the saved file to our new parser!
+        const newIncident = await parseLogFile(req.file.path, req.file.originalname, projectId);
         res.status(200).json({
             success: true,
             message: 'File parsed and incident created!',

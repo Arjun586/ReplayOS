@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/auth';
+import AcceptInvite from './pages/AcceptInvite';
 
 function Dashboard() {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -57,6 +58,8 @@ function App() {
                 path="/register" 
                 element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} 
             />
+
+            <Route path="/invite/:token" element={isAuthenticated ? <Navigate to="/" replace /> : <AcceptInvite />} />
 
             {/* 
                 PROTECTED ROUTES 

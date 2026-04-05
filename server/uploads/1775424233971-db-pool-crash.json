@@ -1,0 +1,58 @@
+[
+    {
+        "timestamp": "2026-04-06T14:20:00Z",
+        "level": "INFO",
+        "message": "Traffic spike detected: 5,000 req/sec",
+        "service": "load-balancer",
+        "correlationId": "sys-metrics"
+    },
+    {
+        "timestamp": "2026-04-06T14:20:01Z",
+        "level": "INFO",
+        "message": "Fetching user profile batch",
+        "service": "user-service",
+        "correlationId": "batch-881"
+    },
+    {
+        "timestamp": "2026-04-06T14:20:02Z",
+        "level": "WARNING",
+        "message": "Postgres connection pool nearing capacity (85/100)",
+        "service": "user-service",
+        "correlationId": "sys-metrics"
+    },
+    {
+        "timestamp": "2026-04-06T14:20:05Z",
+        "level": "INFO",
+        "message": "Scaling up read replicas",
+        "service": "orchestrator",
+        "correlationId": "sys-metrics"
+    },
+    {
+        "timestamp": "2026-04-06T14:20:08Z",
+        "level": "WARNING",
+        "message": "Postgres connection pool exhausted (100/100). Queuing queries.",
+        "service": "user-service",
+        "correlationId": "batch-890"
+    },
+    {
+        "timestamp": "2026-04-06T14:20:15Z",
+        "level": "ERROR",
+        "message": "PrismaClientInitializationError: Timed out fetching a new connection from the connection pool.",
+        "service": "user-service",
+        "correlationId": "batch-890"
+    },
+    {
+        "timestamp": "2026-04-06T14:20:16Z",
+        "level": "ERROR",
+        "message": "Failed to retrieve user data, dropping 400 requests.",
+        "service": "user-service",
+        "correlationId": "batch-890"
+    },
+    {
+        "timestamp": "2026-04-06T14:20:18Z",
+        "level": "CRITICAL",
+        "message": "Service crashed. Unhandled promise rejection.",
+        "service": "user-service",
+        "correlationId": "sys-metrics"
+    }
+]

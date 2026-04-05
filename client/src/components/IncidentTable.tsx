@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { AlertCircle, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
+import { useAuth } from '../contexts/auth';
 
 // Tell TypeScript exactly what our data looks like
 type Incident = {
@@ -14,41 +15,43 @@ type Incident = {
 };
 
 export default function IncidentTable() {
+    const { activeProject } = useAuth();
     const [incidents, setIncidents] = useState<Incident[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    
     const navigate = useNavigate();
 
-    // Fetch data from our Express backend when the component loads
-    useEffect(() => {
-        let isMounted = true; // Prevents state updates if component unmounts before fetch finishes
 
+    useEffect(() => {
+        let isMounted = true;
+        
         const fetchIncidents = async () => {
+            // 3. Don't fetch if no project is selected yet
+            if (!activeProject) return; 
+            
             try {
-                const response = await apiClient.get('/incidents');
+                setIsLoading(true);
+                // 4. Pass projectId in the query string
+                const response = await apiClient.get(`/incidents?projectId=${activeProject.id}`);
                 if (isMounted) {
-                    // Make sure we handle if the API returns an empty array or missing data property
                     setIncidents(response.data?.data || []);
                 }
             } catch (error) {
-                console.error("Failed to fetch incidents", error);
-                if (isMounted) {
-                    setIncidents([]); // Fallback to empty array on error
-                }
+                console.error('Failed to fetch incidents:', error);
+                if (isMounted) setIncidents([]);
             } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
+                if (isMounted) setIsLoading(false);
             }
         };
 
         fetchIncidents();
 
-        // Cleanup function
         return () => {
             isMounted = false;
         };
-    }, []); // Empty dependency array means it runs once on mount. 
-    // (In App.tsx, you pass key={refreshKey}, which physically destroys and remounts this component, so this works perfectly!)
+    // 5. Add activeProject.id to the dependency array
+    }, [activeProject?.id]); 
+
 
     // Helper function to color-code the severity badges
     const getSeverityColor = (severity: string) => {
