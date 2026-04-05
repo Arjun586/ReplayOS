@@ -14,7 +14,7 @@ The platform is designed using a decoupled, horizontally scalable architecture t
 ### 1. Presentation Layer (Client)
 A Single Page Application (SPA) designed for complex state management and high-density data visualization.
 * **Optimistic UI:** Ensures the dashboard feels instantaneous when navigating between incident timelines.
-* **Animated Data Flows:** Utilizes physics-based micro-interactions to render timeline events, reducing cognitive load when scanning hundreds of logs.
+* **Context-Aware Routing:** Dynamic navigation based on the user's active `Organization` and isolated `Project` scopes.
 
 ### 2. API Gateway (Server)
 A stateless REST API acting as the central traffic router.
@@ -79,16 +79,22 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 
 This project is continually evolving from a single-user MVP into a fully-fledged enterprise SaaS product. Here is the exact roadmap for upcoming features and architectural upgrades:
 
-### Phase 3: Observability & Distributed Tracing (Up Next)
+### Phase 3: Organization Management & Employee Onboarding (In Progress)
+- [ ] **Organization Admin Flow:** Allow Organization Admins to create and manage strictly isolated `Projects`.
+- [ ] **Employee Invitation System:** Build a secure email-invitation flow for onboarding new engineers into specific Organizations.
+- [ ] **Context-Aware Navigation:** Implement an Organization/Project switcher in the UI to dynamically scope dashboards, log uploads, and timelines.
+- [ ] **Project-Level Isolation:** Ensure that employees only see dashboards and incidents for `Projects` they have explicitly been granted access to.
+
+### Phase 4: Observability & Distributed Tracing
 - [ ] **OpenTelemetry Integration:** Ingest standardized OTLP traces alongside raw logs.
 - [ ] **Trace Correlation:** Automatically map individual log events to their parent request traces across microservices.
 - [ ] **Service Dependency Graphs:** Visualize which microservice triggered upstream failures.
 
-### Phase 4: Automated Intelligence
+### Phase 5: Automated Intelligence
 - [ ] **Incident Clustering:** Use error signature hashes (service + route + status) to group similar incoming logs into existing incidents, preventing alert fatigue.
 - [ ] **AI-Assisted Root Cause Analysis:** Integrate an LLM (via OpenAI/Anthropic API) to analyze raw log arrays and suggest probable root cause hypotheses inside the postmortem modal.
 
-### Phase 5: Enterprise Scalability
+### Phase 6: Enterprise Scalability
 - [ ] **Background Workers:** Move the `parseLogFile` service out of the Express request cycle and into a Redis-backed BullMQ worker queue to handle 100MB+ files without blocking the API.
 - [ ] **S3 Object Storage:** Migrate raw log file storage from the local disk to an S3-compatible cloud bucket (e.g., AWS S3 or Cloudflare R2).
 - [ ] **Full-Text Search:** Implement PostgreSQL `tsvector` indexing or Elasticsearch for rapid log querying across millions of events.
