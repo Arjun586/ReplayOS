@@ -33,7 +33,7 @@ export default function AcceptInvite() {
 
             // Log them in globally and redirect to dashboard
             login(jwtToken, user, organizations);
-            navigate('/');
+            navigate('/dashboard');
             
         } catch (err) {
             if (isAxiosError(err)) {

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Building, Loader2, AlertCircle, TerminalSquare } from 'lucide-react';
+import { User, Mail, Lock, Building, Loader2, AlertCircle, TerminalSquare, X } from 'lucide-react';
 import { isAxiosError } from 'axios';
 import { apiClient } from '../api/client';
 import { useAuth } from '../contexts/auth';
@@ -38,7 +38,7 @@ export default function Register() {
         // Our auth context expects an array of organizations
         login(token, user, [organization]);
 
-        navigate('/');
+        navigate('/dashboard');
         } catch (err) {
         if (isAxiosError(err)) {
             const errData = err.response?.data?.error;
@@ -63,8 +63,18 @@ export default function Register() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, type: 'spring', stiffness: 100 }}
-                className="w-full max-w-md bg-surface border border-surfaceBorder rounded-2xl shadow-xl overflow-hidden my-8"
+                className="relative w-full max-w-md bg-surface border border-surfaceBorder rounded-2xl shadow-xl overflow-hidden my-8"
                 >
+                
+                {/* ADDED: Close button to return to home */}
+                <Link 
+                    to="/" 
+                    className="absolute top-4 right-4 p-2 text-muted hover:text-gray-200 transition-colors rounded-full hover:bg-surfaceBorder/50"
+                    aria-label="Close and return home"
+                >
+                    <X size={20} />
+                </Link>
+                
                 <div className="p-8">
                     {/* Header */}
                     <div className="flex flex-col items-center mb-8">

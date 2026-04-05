@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/auth';
 import AcceptInvite from './pages/AcceptInvite';
+import Landing from './pages/Landing';
 
 function Dashboard() {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -45,6 +46,8 @@ function App() {
 
     return (
         <Routes>
+
+            <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
             {/* 
                 PUBLIC ROUTES
                 If the user is already logged in, kick them back to the Dashboard.
@@ -68,7 +71,7 @@ function App() {
             */}
             <Route element={<ProtectedRoute />}>
                 <Route element={<AuthenticatedLayout />}>
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/incident/:id" element={<IncidentTimeline />} />
                 </Route>
             </Route>

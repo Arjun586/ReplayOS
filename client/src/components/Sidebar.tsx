@@ -18,14 +18,15 @@ type NavItem = {
     name: string;
     icon: React.ElementType;
     isActive?: boolean;
+    href: string;
 };
 
 // Now we use that blueprint. If you try to add `age: 25` here, TypeScript will stop you!
 const navItems: NavItem[] = [
-    { name: "Dashboard", icon: LayoutDashboard, isActive: true },
-    { name: "Incidents", icon: AlertCircle },
-    { name: "Postmortems", icon: FileText },
-    { name: "Settings", icon: Settings },
+    { name: 'Dashboard', icon: LayoutDashboard, isActive: true, href: '/dashboard' },
+    { name: "Incidents", icon: AlertCircle, href: '/incidents' },
+    { name: "Postmortems", icon: FileText, href: '/postmortems' },
+    { name: "Settings", icon: Settings, href: '/settings' },
 ];
 
 export default function Sidebar() {
@@ -108,7 +109,7 @@ export default function Sidebar() {
                                         onClick={() => {
                                             setActiveProject(project);
                                             setIsProjectDropdownOpen(false);
-                                            navigate('/');
+                                            navigate('/dashboard');
                                         }}
                                         className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                                             activeProject?.id === project.id 

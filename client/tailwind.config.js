@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ["class"],
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,31 +8,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        // A deep, premium dark background (not pure black)
-        background: '#09090b',
-        surface: '#18181b',
-        surfaceBorder: '#27272a',
+        // Map to CSS Variables in index.css
+        background: 'rgb(var(--bg-main) / <alpha-value>)',
+        surface: 'rgb(var(--bg-surface) / <alpha-value>)',
+        surfaceBorder: 'rgb(var(--border-surface) / <alpha-value>)',
         
-        // A striking neon violet/teal for our primary buttons and accents
+        glass: 'rgb(var(--bg-surface) / 0.6)',
+        glassBorder: 'rgb(var(--border-surface) / 0.5)',
+
         primary: {
-          DEFAULT: '#8b5cf6', // Violet
-          hover: '#7c3aed',
-          foreground: '#ffffff',
+          DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
+          hover: 'rgb(var(--primary-hover) / <alpha-value>)',
         },
-        
-        // Muted text for secondary information
+        foreground: '#ffffff',
         muted: '#a1a1aa',
         
-        // Incident Status Colors
         status: {
-          error: '#ef4444',   // Red
-          warning: '#f59e0b', // Amber
-          success: '#10b981', // Green
-          info: '#3b82f6',    // Blue
+          error: '#ef4444',
+          warning: '#f59e0b',
+          success: '#10b981',
+          info: '#3b82f6',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // We will add the Inter font next!
+        sans: ['Inter', 'sans-serif'],
+      },
+      backdropBlur: {
+        glass: '12px',
       },
     },
   },

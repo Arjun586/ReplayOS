@@ -3,7 +3,52 @@
 @tailwind utilities;
 
 @layer base {
+  /* 1. Default Purple Theme */
+  :root, [data-theme="purple"] {
+    --bg-main: 9 9 11;
+    --bg-surface: 24 24 27;
+    --border-surface: 39 39 42;
+    --primary: 139 92 246; /* #8b5cf6 */
+    --primary-hover: 124 58 237; /* #7c3aed */
+  }
+
+  /* 2. Crimson Red Theme */
+  [data-theme="red"] {
+    --bg-main: 15 5 5;
+    --bg-surface: 28 10 10;
+    --border-surface: 45 20 20;
+    --primary: 239 68 68; /* #ef4444 */
+    --primary-hover: 220 38 38; /* #dc2626 */
+  }
+
+  /* 3. Ocean Blue Theme */
+  [data-theme="blue"] {
+    --bg-main: 5 10 18;
+    --bg-surface: 15 25 35;
+    --border-surface: 30 45 60;
+    --primary: 59 130 246; /* #3b82f6 */
+    --primary-hover: 37 99 235; /* #2563eb */
+  }
+
+  /* 4. Monochrome Gray Theme */
+  [data-theme="gray"] {
+    --bg-main: 10 10 10;
+    --bg-surface: 20 20 20;
+    --border-surface: 35 35 35;
+    --primary: 212 212 216; /* #d4d4d8 */
+    --primary-hover: 255 255 255; /* #ffffff */
+  }
+
   body {
     @apply bg-background text-gray-100 font-sans antialiased selection:bg-primary/30;
   }
+}
+
+
+
+[data-theme="gray"] button.bg-primary, [data-theme="gray"] a.bg-primary {
+    transition: all 0.2s ease-in-out !important;
+}
+[data-theme="gray"] button.bg-primary:hover, [data-theme="gray"] a.bg-primary:hover {
+    color: #000000 !important;
 }
