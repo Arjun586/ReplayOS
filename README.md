@@ -28,7 +28,7 @@ The backbone of the application. Log files are not parsed synchronously during t
 
 ### 4. Data & Storage Layer
 A hybrid storage approach optimized for both structured relationships and raw file retention.
-* **Relational Metadata:** PostgreSQL enforces strict referential integrity between Workspaces, Incidents, and millions of individual Log Events.
+* **Relational Metadata:** PostgreSQL enforces strict referential integrity between Organizations, Projects, Incidents, and millions of individual Log Events.
 * **Object Storage (Upcoming):** Raw `.json` and `.log` files are stored in S3-compatible object storage, keeping the database lightweight and performant.
 
 ---
@@ -48,7 +48,7 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 * **Zod:** Schema declaration and validation. Rejects malformed requests before they consume server resources.
 
 ### Database & ORM
-* **PostgreSQL (Hosted on Supabase):** Chosen over NoSQL because incident tracking requires strict relational data (Workspaces → Incidents → Events).
+* **PostgreSQL (Hosted on Supabase):** Chosen over NoSQL because incident tracking requires strict relational data (Organization → Projects → Incidents → Events).
 * **Prisma ORM:** Provides type-safe database queries and automated migrations, eliminating raw SQL string errors.
 
 ---
@@ -68,6 +68,10 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] Configured React Router v6 to handle deep-linking (`/incident/:id`).
 - [x] Built the `IncidentTimeline.tsx` page featuring a staggered, Framer Motion-powered visual event timeline.
 - [x] Integrated `@uiw/react-md-editor` and built the `PostmortemModal.tsx` generator to synthesize raw timeline data into a copy-ready Markdown report.
+- [x] **Phase 2 Complete:** Transitioned to B2B SaaS Multi-Tenant Architecture (`Organization` -> `Projects` -> `Incidents`).
+- [x] **Phase 2 Complete:** Implemented secure JWT-based authentication with bcrypt password hashing and global Axios interceptors.
+- [x] **Phase 2 Complete:** Built strict Role-Based Access Control (RBAC) middleware for Express.
+- [x] **Phase 2 Complete:** Built premium Login, Registration, and React Router `ProtectedRoute` wrappers using Framer Motion.
 
 ---
 
@@ -75,13 +79,7 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 
 This project is continually evolving from a single-user MVP into a fully-fledged enterprise SaaS product. Here is the exact roadmap for upcoming features and architectural upgrades:
 
-### Phase 2: Enterprise Multi-Tenancy & RBAC (In Progress)
-- [ ] **Multi-Tenant Architecture:** Transition from a single workspace to a full B2B SaaS model (`Organization` -> `Projects` -> `Incidents`).
-- [ ] **Authentication & Security:** Implement secure JWT-based authentication with bcrypt password hashing.
-- [ ] **Role-Based Access Control (RBAC):** Differentiate permissions between Organization Admins and Team Members.
-- [ ] **Dedicated Auth UI:** Build premium login, registration, and organization onboarding screens.
-
-### Phase 3: Observability & Distributed Tracing
+### Phase 3: Observability & Distributed Tracing (Up Next)
 - [ ] **OpenTelemetry Integration:** Ingest standardized OTLP traces alongside raw logs.
 - [ ] **Trace Correlation:** Automatically map individual log events to their parent request traces across microservices.
 - [ ] **Service Dependency Graphs:** Visualize which microservice triggered upstream failures.
@@ -109,7 +107,7 @@ cd failure-replay
 ```bash
 cd server
 npm install
-# Ensure your .env file contains your DATABASE_URL
+# Ensure your .env file contains your DATABASE_URL and JWT_SECRET
 ```
 
 **3. Start the Frontend UI**
