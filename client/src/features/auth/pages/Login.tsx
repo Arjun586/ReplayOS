@@ -16,34 +16,30 @@ export default function Login() {
     const navigate = useNavigate();
     const { login } = useAuth(); // Grab our global login function
 
+        // Pass a dummy token to the login context since we now use HttpOnly cookies for authentication
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsLoading(true);
 
         try {
-        
             const response = await apiClient.post('/auth/login', {
                 email,
                 password,
             });
 
-            const { token, user, organizations } = response.data;
+            const { user, organizations } = response.data;
 
-            
-            login(token, user, organizations);
+            login('cookie-auth', user, organizations);
 
-            
             navigate('/dashboard');
-        } catch (err) { // err defaults to 'unknown'
-        if (isAxiosError(err)) {
-            // TypeScript now securely knows 'err' has the AxiosError shape
-            const message = err.response?.data?.error || 'Failed to connect to the server.';
-            setError(message);
-        } else {
-            // It was some other kind of non-HTTP error (e.g., a generic JS error)
-            setError('An unexpected error occurred.');
-        }
+        } catch (err) {
+            if (isAxiosError(err)) {
+                const message = err.response?.data?.error || 'Failed to connect to the server.';
+                setError(message);
+            } else {
+                setError('An unexpected error occurred.');
+            }
         } finally {
             setIsLoading(false);
         }

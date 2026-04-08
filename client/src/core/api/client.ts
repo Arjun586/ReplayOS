@@ -5,6 +5,7 @@ import type { AxiosInstance } from 'axios';
 export const apiClient: AxiosInstance = axios.create({
     // Fallback to localhost if the environment variable isn't set
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    withCredentials: true, // This is mandatory for cookies to be sent back and forth!
     headers: {
         'Content-Type': 'application/json',
     },

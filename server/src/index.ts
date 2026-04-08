@@ -9,6 +9,7 @@ import uploadRoutes from './routes/upload.routes';
 import authRoutes from './routes/auth.routes';
 import invitationRoutes from './routes/invitation.routes';
 import projectRoutes from './routes/project.routes';
+import cookieParser from 'cookie-parser';
 
 
 dotenv.config();
@@ -18,8 +19,13 @@ const PORT = process.env.PORT || 5000;
 
 // --- PRODUCTION MIDDLEWARES ---
 app.use(helmet()); // Adds security headers
-app.use(cors({ origin: 'http://localhost:5173' })); // Allows React to talk to us
-app.use(express.json()); // Allows us to read JSON data from the frontend
+app.use(cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true
+})); // Allows React to talk to us
+
+app.use(express.json());
+app.use(cookieParser()); // Allows us to read JSON data from the frontend
 app.use(morgan('dev')); // Logs requests in the terminal (e.g., "POST /api/incidents 201")
 
 // --- ROUTES ---
