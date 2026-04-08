@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { parseLogFile } from '../services/parser.service';
+import { authenticateUser } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post('/', upload.single('logfile'), async (req, res) => {
+router.post('/', authenticateUser, upload.single('logfile'), async (req, res) => {
     try {
         if (!req.file) {
             res.status(400).json({ success: false, message: 'No file uploaded' });

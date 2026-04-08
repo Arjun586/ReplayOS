@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { registerSchema, loginSchema } from '../validations/auth.schema';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-development-key';
+const JWT_SECRET = process.env.JWT_SECRET ;
 
 export const register = async (req: Request, res: Response) => {
     try {

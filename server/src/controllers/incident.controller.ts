@@ -3,84 +3,67 @@ import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { z } from 'zod';
 
-// Validate incoming data before it touches the database!
+// 1. Update Schema: Ab hum ensure kar rahe hain ki projectId request mein aana hi chahiye
 const createIncidentSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters long"),
     description: z.string().optional(),
     severity: z.enum(['low', 'medium', 'high', 'critical']).default('high'),
+    projectId: z.string().uuid("Invalid Project ID"), // 👈 NEW: Project ID is mandatory
 });
 
 export const createIncident = async (req: Request, res: Response): Promise<void> => {
     try {
-        // Zod checks the request body. If it's bad, it throws an error immediately.
         const validatedData = createIncidentSchema.parse(req.body);
 
-        // Find the first project, or create a default one (and org) if DB is empty
-        let project = await prisma.project.findFirst();
-        if (!project) {
-            let org = await prisma.organization.findFirst();
-            if (!org) {
-                org = await prisma.organization.create({
-                    data: { name: 'Default Org', slug: 'default-org' }
-                });
-            }
-            project = await prisma.project.create({
-                data: { name: 'Default Project', organizationId: org.id }
-            });
+        // 2. Verify: Check karo ki ye project database mein sach mein exist karta hai ya nahi
+        const projectExists = await prisma.project.findUnique({
+            where: { id: validatedData.projectId }
+        });
+
+        if (!projectExists) {
+            res.status(404).json({ success: false, message: "Project not found" });
+            return;
         }
 
-        // Save the new incident to Postgres via Prisma
+        // 3. Save: Incident ko specifically usi project se link karo
         const incident = await prisma.incident.create({
             data: {
                 title: validatedData.title,
                 description: validatedData.description,
                 severity: validatedData.severity,
-                projectId: project.id, // <-- Replaced workspaceId with projectId
+                projectId: validatedData.projectId, // 👈 Exact Project ID passed from frontend
             },
         });
 
-        // Send a success response back to React
         res.status(201).json({
             success: true,
             data: incident,
         });
-
     } catch (error) {
-        // If Zod validation fails, send a 400 Bad Request
         if (error instanceof z.ZodError) {
             res.status(400).json({ success: false, errors: error.issues });
             return;
         }
-        
-        // If Database fails, send a 500 Internal Server Error
         console.error("Error creating incident:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
 export const getIncidents = async (req: Request, res: Response): Promise<void> => {
+    // ... (Your existing getIncidents code is completely fine! Keep it as is.)
     try {
-        // Grab the projectId from the query string
-        const { projectId } = req.query;
+        const { projectId } = req.query; 
 
-        // Ensure it exists before querying
         if (!projectId || typeof projectId !== 'string') {
             res.status(400).json({ success: false, message: 'projectId is required' });
             return;
         }
 
         const incidents = await prisma.incident.findMany({
-            where: {
-                projectId: projectId // ONLY return incidents for this specific project!
-            },
-            orderBy: {
-                createdAt: 'desc'
-            },
-            include: {
-                project: true
-            }
+            where: { projectId: projectId },
+            orderBy: { createdAt: 'desc' },
         });
-
+        
         res.status(200).json({ success: true, data: incidents });
     } catch (error) {
         console.error("Error fetching incidents:", error);
@@ -88,18 +71,21 @@ export const getIncidents = async (req: Request, res: Response): Promise<void> =
     }
 };
 
-// Fetch a single incident AND all its associated log events, sorted by time
 export const getIncidentTimeline = async (req: Request, res: Response): Promise<void> => {
+    // ... (Your existing getIncidentTimeline code is also fine! Keep it as is.)
     try {
         const { id } = req.params;
+
+        if (!id || typeof id !== 'string') {
+            res.status(400).json({ success: false, message: 'Invalid incident ID format' });
+            return;
+        }
 
         const incident = await prisma.incident.findUnique({
             where: { id },
             include: {
-                events: {
-                    orderBy: { timestamp: 'asc' } // MUST be ascending so the timeline flows top-to-bottom
-                },
-                project: true // <-- Replaced workspace with project
+                events: { orderBy: { timestamp: 'asc' } },
+                project: true 
             }
         });
 

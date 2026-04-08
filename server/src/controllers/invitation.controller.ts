@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createInvitationSchema, acceptInvitationSchema } from '../validations/invitation.schema';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-development-key';
+const JWT_SECRET = process.env.JWT_SECRET ;
 
 export const createInvitation = async (req: Request, res: Response) => {
     try {
