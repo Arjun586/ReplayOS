@@ -84,6 +84,10 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] User Identity UI with active role badges (`ADMIN` / `MEMBER`) and dynamic feature gating (hiding creation tools from non-admins).
 - [x] Employee Invitation System with secure backend token generation, UI modals, and one-time link redemption.
 
+
+### Phase 4: Observability & Distributed Tracing (Up Next)
+- [x] **OpenTelemetry Integration:** Ingest standardized OTLP traces alongside raw logs.
+- [x] **Trace Correlation:** Automatically map individual log events to their parent request traces across microservices.
 ---
 
 ## 🗺️ Roadmap & Future Scope
@@ -91,8 +95,6 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 This project is continually evolving from a single-user MVP into a fully-fledged enterprise SaaS product. Here is the exact roadmap for upcoming features and architectural upgrades:
 
 ### Phase 4: Observability & Distributed Tracing (Up Next)
-- [ ] **OpenTelemetry Integration:** Ingest standardized OTLP traces alongside raw logs.
-- [ ] **Trace Correlation:** Automatically map individual log events to their parent request traces across microservices.
 - [ ] **Service Dependency Graphs:** Visualize which microservice triggered upstream failures.
 
 ### Phase 5: Automated Intelligence
