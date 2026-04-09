@@ -30,22 +30,21 @@ model Organization {
   slug        String               @unique
   members     OrganizationMember[]
   projects    Project[]
-  invitations Invitation[]         // Add this line!
+  invitations Invitation[]
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
 }
 
 // Junction table mapping Users to Organizations with a specific Role
 model OrganizationMember {
-  id             String       @id @default(uuid())
+  id             String @id @default(uuid())
   userId         String
   organizationId String
-  role           Role         @default(MEMBER)
-  
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           Role   @default(MEMBER)
 
-  // A user can only have one membership record per organization
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
   @@unique([userId, organizationId])
   @@index([userId])
   @@index([organizationId])
@@ -59,48 +58,103 @@ model Project {
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   incidents      Incident[]
+  traces         Trace[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  ingestKey      String    @default(uuid()) @unique
 }
 
 // --- Core Data ---
 
 model Incident {
-  id          String      @id @default(uuid())
+  id          String     @id @default(uuid())
   title       String
-  description String?     
-  status      String      @default("open") 
-  severity    String      @default("high") 
+  description String?
+  status      String     @default("open")
+  severity    String     @default("high")
   projectId   String
-  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  events      LogEvent[]  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  events      LogEvent[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model LogEvent {
   id            String   @id @default(uuid())
-  timestamp     DateTime 
-  level         String   
-  message       String   
-  service       String?  
-  correlationId String?  
+  timestamp     DateTime
+  level         String
+  message       String
+  service       String?
+  correlationId String?
   incidentId    String
   incident      Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  traceRefId String?
+  trace      Trace?  @relation(fields: [traceRefId], references: [id], onDelete: SetNull)
+
+  spanRefId String?
+  span      Span?   @relation("SpanLogEvents", fields: [spanRefId], references: [id], onDelete: SetNull)
+
+  @@index([incidentId])
+  @@index([correlationId])
+  @@index([traceRefId])
+  @@index([spanRefId])
 }
 
+model Trace {
+  id            String     @id @default(uuid())
+  traceId       String     @unique
+  projectId     String
+  project       Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rootService   String?
+  rootOperation String?
+  status        String?
+  startedAt     DateTime
+  endedAt       DateTime?
+  spans         Span[]
+  logEvents     LogEvent[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([projectId])
+  @@index([startedAt])
+  @@index([status])
+}
+
+model Span {
+  id            String     @id @default(uuid())
+  spanId        String     @unique
+  parentSpanId  String?
+  traceRefId    String
+  trace         Trace      @relation(fields: [traceRefId], references: [id], onDelete: Cascade)
+  serviceName   String
+  operationName String
+  status        String?
+  errorMessage  String?
+  startTime     DateTime
+  endTime       DateTime?
+  durationMs    Int?
+  logEvents     LogEvent[] @relation("SpanLogEvents")
+  createdAt     DateTime   @default(now())
+
+  @@index([traceRefId])
+  @@index([parentSpanId])
+  @@index([serviceName])
+  @@index([operationName])
+  @@index([status])
+}
 
 model Invitation {
   id             String       @id @default(uuid())
-  email          String       // The email being invited
+  email          String
   organizationId String
-  token          String       @unique // Secure random string for the invite link
-  role           Role         @default(MEMBER) // Admins can invite other Admins or Members
-  expiresAt      DateTime     // Invitations should expire (e.g., in 7 days)
+  token          String       @unique
+  role           Role         @default(MEMBER)
+  expiresAt      DateTime
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
 
-  // Ensure an email can't have duplicate pending invites for the exact same org
-  @@unique([email, organizationId]) 
+  @@unique([email, organizationId])
   @@index([token])
 }

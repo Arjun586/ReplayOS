@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.routes';
 import invitationRoutes from './routes/invitation.routes';
 import projectRoutes from './routes/project.routes';
 import cookieParser from 'cookie-parser';
+import traceRoutes from './routes/trace.routes';
 
 
 dotenv.config();
@@ -41,6 +42,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/invites', invitationRoutes);
 app.use('/api/projects', projectRoutes);
+app.use("/api/traces", traceRoutes)
 
 // --- START THE SERVER ---
 app.listen(PORT, () => {

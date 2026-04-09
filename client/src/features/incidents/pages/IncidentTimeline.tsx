@@ -3,17 +3,15 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertCircle, Info, AlertTriangle, FileTerminal, FileText } from 'lucide-react';
-
-// Components & Hooks
+import { ArrowLeft, AlertCircle, Info, AlertTriangle, FileTerminal, FileText, Server } from 'lucide-react';
 import PostmortemModal from '../components/PostmortemModal';
 import { useTimeline } from '../hooks/useTimeline';
+import TraceGraph from "../components/TraceGraph";
 
 export default function IncidentTimeline() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     
     const { incident, isLoading, error } = useTimeline(id);
 
@@ -41,6 +39,11 @@ export default function IncidentTimeline() {
             </button>
         </div>
     );
+
+    // NEW: Find the first valid trace ID attached to any log event in this incident
+    // We check traceRefId first, falling back to correlationId if traces aren't fully mapped yet
+    const primaryTraceId = incident.events.find(e => e.traceRefId)?.traceRefId || 
+                            incident.events.find(e => e.correlationId)?.correlationId;
 
     return (
         <div className="w-full max-w-4xl mx-auto pb-20 px-4">
@@ -83,6 +86,13 @@ export default function IncidentTimeline() {
                 events={incident.events}
             />
 
+            {/* NEW: Render Trace Graph if we have a traceId */}
+            {primaryTraceId && (
+                <div className="mb-10">
+                    <TraceGraph traceId={primaryTraceId} />
+                </div>
+            )}
+
             {/* The Animated Timeline */}
             <div className="relative pl-6 border-l-2 border-surfaceBorder space-y-8 ml-4">
                 {incident.events.map((event, index) => {
@@ -116,18 +126,26 @@ export default function IncidentTimeline() {
                                     {event.message}
                                 </p>
                                 
-                                <div className="mt-4 pt-3 border-t border-surfaceBorder/50 flex flex-wrap gap-4 text-[11px] text-muted">
-                                    <div className="flex gap-1.5">
-                                        <span className="text-gray-500 uppercase font-semibold tracking-tighter">Service:</span> 
-                                        <span className="text-gray-300">{event.service}</span>
+                                {/* UPDATED: Visual Trace and Span Badges Footer */}
+                                {(event.traceRefId || event.correlationId || event.service) && (
+                                    <div className="mt-4 pt-3 border-t border-surfaceBorder/50 flex flex-wrap items-center gap-2">
+                                        {event.service && (
+                                            <span className="flex items-center gap-1 px-2 py-1 bg-surfaceBorder/30 text-gray-300 rounded text-xs border border-surfaceBorder/50">
+                                                <Server size={12} className="text-muted" /> {event.service}
+                                            </span>
+                                        )}
+                                        {event.spanRefId && (
+                                            <span className="flex items-center gap-1 px-2 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded text-xs font-mono">
+                                                span: {event.spanRefId.substring(0, 8)}...
+                                            </span>
+                                        )}
+                                        {(event.traceRefId || event.correlationId) && (
+                                            <span className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded text-xs font-mono">
+                                                trace: {(event.traceRefId || event.correlationId)?.substring(0, 8)}...
+                                            </span>
+                                        )}
                                     </div>
-                                    {event.correlationId && (
-                                        <div className="flex gap-1.5">
-                                            <span className="text-gray-500 uppercase font-semibold tracking-tighter">Trace:</span> 
-                                            <span className="text-primary/80 font-mono">{event.correlationId}</span>
-                                        </div>
-                                    )}
-                                </div>
+                                )}
                             </div>
                         </motion.div>
                     );

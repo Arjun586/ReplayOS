@@ -1,7 +1,7 @@
 // server/src/routes/upload.routes.ts
 import { Router } from 'express';
 import multer from 'multer';
-import { parseLogFile } from '../services/parser.service';
+import { parseLogFile } from "../services/parser.service"
 import { authenticateUser } from '../middleware/auth.middleware';
 
 const router = Router();

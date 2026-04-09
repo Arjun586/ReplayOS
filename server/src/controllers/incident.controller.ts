@@ -84,10 +84,16 @@ export const getIncidentTimeline = async (req: Request, res: Response): Promise<
         const incident = await prisma.incident.findUnique({
             where: { id },
             include: {
-                events: { orderBy: { timestamp: 'asc' } },
-                project: true 
+                events: {
+                    orderBy: { timestamp: "asc" },
+                    include: {
+                        trace: true,
+                        span: true
+                    }
+                },
+                project: true
             }
-        });
+        })
 
         if (!incident) {
             res.status(404).json({ success: false, message: 'Incident not found' });

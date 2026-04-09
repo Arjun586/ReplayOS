@@ -1,0 +1,342 @@
+// Handle trace ingestion and retrieval endpoints
+import type { Request, Response } from "express"
+import { z } from "zod"
+import { prisma } from "../lib/prisma"
+import { ingestTraceSchema } from "../validations/trace.schema"
+import { ingestTrace } from "../services/trace.service"
+import { OTLPTraceExportSchema } from "../validations/trace.schema"
+
+export const createTrace = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const validatedData = ingestTraceSchema.parse(req.body)
+        const trace = await ingestTrace(validatedData)
+
+        res.status(201).json({
+            success: true,
+            data: trace
+        })
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            res.status(400).json({
+                success: false,
+                errors: error.issues
+            })
+            return
+        }
+
+        if (error instanceof Error && error.message === "Project not found") {
+            res.status(404).json({
+                success: false,
+                message: error.message
+            })
+            return
+        }
+
+        console.error("Error ingesting trace:", error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+export const getProjectTraces = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const projectId = req.query.projectId
+
+        if (!projectId || typeof projectId !== "string") {
+            res.status(400).json({
+                success: false,
+                message: "projectId is required"
+            })
+            return
+        }
+
+        const traces = await prisma.trace.findMany({
+            where: { projectId },
+            include: {
+                spans: {
+                    orderBy: { startTime: "asc" }
+                }
+            },
+            orderBy: { startedAt: "desc" }
+        })
+
+        res.status(200).json({
+            success: true,
+            data: traces
+        })
+    } catch (error) {
+        console.error("Error fetching traces:", error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+export const getTraceById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const traceId = req.params.traceId
+
+        if (!traceId || typeof traceId !== "string") {
+            res.status(400).json({
+                success: false,
+                message: "traceId is required"
+            })
+            return
+        }
+
+        const trace = await prisma.trace.findUnique({
+            where: { traceId },
+            include: {
+                spans: {
+                    orderBy: { startTime: "asc" }
+                },
+                logEvents: {
+                    orderBy: { timestamp: "asc" }
+                }
+            }
+        })
+
+        if (!trace) {
+            res.status(404).json({
+                success: false,
+                message: "Trace not found"
+            })
+            return
+        }
+
+        res.status(200).json({
+            success: true,
+            data: trace
+        })
+    } catch (error) {
+        console.error("Error fetching trace:", error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+
+// Generate a service dependency graph from trace spans
+export const getTraceGraph = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const traceId = req.params.traceId
+
+        if (!traceId || typeof traceId !== "string") {
+            res.status(400).json({
+                success: false,
+                message: "traceId is required"
+            })
+            return
+        }
+
+        const trace = await prisma.trace.findUnique({
+            where: { traceId },
+            include: {
+                spans: {
+                    orderBy: { startTime: "asc" }
+                }
+            }
+        })
+
+        if (!trace || trace.spans.length === 0) {
+            res.status(404).json({
+                success: false,
+                message: "Trace not found or contains no spans"
+            })
+            return
+        }
+
+        // Build Nodes and Edges for the Graph
+        const nodes = new Map<string, { id: string; service: string; hasError: boolean; duration: number }>()
+        const edges = new Map<string, { source: string; target: string; calls: number }>()
+
+        // Keep track of which service a span belongs to
+        const spanServiceMap = new Map<string, string>()
+        
+        trace.spans.forEach(span => {
+            spanServiceMap.set(span.spanId, span.serviceName)
+            
+            if (!nodes.has(span.serviceName)) {
+                nodes.set(span.serviceName, {
+                    id: span.serviceName,
+                    service: span.serviceName,
+                    hasError: false,
+                    duration: 0
+                })
+            }
+            
+            const node = nodes.get(span.serviceName)!
+            // Aggregate duration and error state at service level
+            node.duration += span.durationMs || 0
+            if (span.status === "ERROR" || span.errorMessage) {
+                node.hasError = true
+            }
+        })
+
+        // Build edges based on parent-child relationships
+        trace.spans.forEach(span => {
+            if (span.parentSpanId && spanServiceMap.has(span.parentSpanId)) {
+                const parentService = spanServiceMap.get(span.parentSpanId)!
+                
+                // Only create edge if it's cross-service
+                if (parentService !== span.serviceName) {
+                    const edgeId = `${parentService}->${span.serviceName}`
+                    
+                    if (!edges.has(edgeId)) {
+                        edges.set(edgeId, {
+                            source: parentService,
+                            target: span.serviceName,
+                            calls: 0
+                        })
+                    }
+                    
+                    edges.get(edgeId)!.calls += 1
+                }
+            }
+        })
+
+        res.status(200).json({
+            success: true,
+            data: {
+                nodes: Array.from(nodes.values()),
+                edges: Array.from(edges.values())
+            }
+        })
+
+    } catch (error) {
+        console.error("Error generating trace graph:", error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+
+export const ingestOTLPTraces = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // SDKs will send the target project ID in a custom header
+        const projectId = req.headers["x-project-id"] as string;
+
+        if (!projectId) {
+            res.status(400).json({ success: false, message: "Missing x-project-id header" });
+            return;
+        }
+
+        // Validate incoming OTLP JSON Payload
+        const parsedData = OTLPTraceExportSchema.parse(req.body);
+
+        const spansToInsert: any[] = [];
+        const tracesMap = new Map<string, any>();
+
+        // 1. Unpack the nested OTLP structure
+        for (const resourceSpan of parsedData.resourceSpans) {
+            // Extract Service Name from Resource Attributes
+            let serviceName = "unknown-service";
+            const serviceAttr = resourceSpan.resource?.attributes.find(a => a.key === "service.name");
+            if (serviceAttr?.value?.stringValue) {
+                serviceName = serviceAttr.value.stringValue;
+            }
+
+            for (const scopeSpan of resourceSpan.scopeSpans) {
+                for (const span of scopeSpan.spans) {
+                    
+                    // Convert Unix Nano to Date
+                    const startTime = new Date(Number(BigInt(span.startTimeUnixNano) / BigInt(1000000)));
+                    const endTime = new Date(Number(BigInt(span.endTimeUnixNano) / BigInt(1000000)));
+                    const durationMs = endTime.getTime() - startTime.getTime();
+                    
+                    // OTEL Status Codes: 2 means ERROR
+                    const isError = span.status?.code === 2;
+
+                    // Initialize the Trace record if we haven't seen it yet
+                    if (!tracesMap.has(span.traceId)) {
+                        tracesMap.set(span.traceId, {
+                            traceId: span.traceId,
+                            projectId: projectId,
+                            // We assume the span with no parent is the root
+                            rootService: !span.parentSpanId ? serviceName : "unknown",
+                            rootOperation: !span.parentSpanId ? span.name : "unknown",
+                            status: isError ? "ERROR" : "OK",
+                            startedAt: startTime,
+                            endedAt: endTime
+                        });
+                    } else {
+                        // Update trace status to ERROR if any child span fails
+                        const existingTrace = tracesMap.get(span.traceId);
+                        if (isError) existingTrace.status = "ERROR";
+                        // Update end time if this span finished later
+                        if (endTime > existingTrace.endedAt) existingTrace.endedAt = endTime;
+                        
+                        // If we finally found the root span, update root details
+                        if (!span.parentSpanId) {
+                            existingTrace.rootService = serviceName;
+                            existingTrace.rootOperation = span.name;
+                            existingTrace.startedAt = startTime;
+                        }
+                    }
+
+                    // Prepare Span for DB
+                    spansToInsert.push({
+                        traceId: span.traceId, // Temporary ref, will link properly below
+                        spanId: span.spanId,
+                        parentSpanId: span.parentSpanId || null,
+                        serviceName: serviceName,
+                        operationName: span.name,
+                        status: isError ? "ERROR" : "OK",
+                        startTime,
+                        endTime,
+                        durationMs
+                    });
+                }
+            }
+        }
+
+        // 2. Insert into Database (Upsert Traces first, then Spans)
+        for (const traceData of Array.from(tracesMap.values())) {
+            
+            const savedTrace = await prisma.trace.upsert({
+                where: { traceId: traceData.traceId },
+                update: {
+                    status: traceData.status,
+                    endedAt: traceData.endedAt,
+                    // Only update root info if it was actually discovered in this batch
+                    ...(traceData.rootService !== "unknown" && { rootService: traceData.rootService, rootOperation: traceData.rootOperation })
+                },
+                create: traceData
+            });
+
+            // Filter spans belonging to this trace
+            const childSpans = spansToInsert.filter(s => s.traceId === traceData.traceId);
+            
+            for (const span of childSpans) {
+                await prisma.span.upsert({
+                    where: { spanId: span.spanId },
+                    update: {}, // Assuming spans are immutable once finished
+                    create: {
+                        traceRefId: savedTrace.id, // Foreign Key to the Prisma Trace model
+                        spanId: span.spanId,
+                        parentSpanId: span.parentSpanId,
+                        serviceName: span.serviceName,
+                        operationName: span.operationName,
+                        status: span.status,
+                        startTime: span.startTime,
+                        endTime: span.endTime,
+                        durationMs: span.durationMs
+                    }
+                });
+            }
+        }
+
+        res.status(202).json({ success: true, message: "OTLP Traces ingested successfully" });
+
+    } catch (error) {
+        console.error("OTLP Ingestion Error:", error);
+        res.status(500).json({ success: false, message: "Failed to ingest traces" });
+    }
+};

@@ -28,6 +28,63 @@ export interface IncidentDetails {
     events: LogEvent[];
 }
 
+// Extend log event types with trace and span metadata
+export interface TraceSummary {
+    id: string
+    traceId: string
+    rootService: string | null
+    rootOperation: string | null
+    status: string | null
+    startedAt: string
+    endedAt: string | null
+}
+
+export interface SpanSummary {
+    id: string
+    spanId: string
+    parentSpanId: string | null
+    serviceName: string
+    operationName: string
+    status: string | null
+    errorMessage: string | null
+    startTime: string
+    endTime: string | null
+    durationMs: number | null
+}
+
+export interface LogEvent {
+    id: string
+    timestamp: string
+    level: string
+    message: string
+    service: string
+    correlationId: string | null
+    traceRefId?: string | null
+    spanRefId?: string | null
+    trace?: TraceSummary | null
+    span?: SpanSummary | null
+}
+
+
+export interface TraceGraphNode {
+    id: string
+    service: string
+    hasError: boolean
+    duration: number
+}
+
+export interface TraceGraphEdge {
+    source: string
+    target: string
+    calls: number
+}
+
+export interface TraceGraph {
+    nodes: TraceGraphNode[]
+    edges: TraceGraphEdge[]
+}
+
+
 export const incidentService = {
     // Fetch all incidents for a project
     getIncidentsByProject: async (projectId: string): Promise<Incident[]> => {
@@ -41,3 +98,13 @@ export const incidentService = {
         return response.data.data;
     }
 };
+
+
+export const traceService = {
+    
+    
+    getTraceGraph: async (traceId: string): Promise<TraceGraph> => {
+        const response = await apiClient.get(`/traces/${traceId}/graph`)
+        return response.data.data
+    }
+}
