@@ -1,4 +1,3 @@
-// client/src/hooks/useIncidents.ts
 import { useState, useEffect } from 'react';
 import { incidentService } from '../api/incident.service';
 
@@ -13,7 +12,8 @@ interface Incident {
     projectId: string;
 }
 
-export function useIncidents(projectId: string | undefined) {
+// 🚀 Naya parameter add kiya 'isLiveMode'
+export function useIncidents(projectId: string | undefined, isLiveMode: boolean = false) {
     const [incidents, setIncidents] = useState<Incident[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,6 @@ export function useIncidents(projectId: string | undefined) {
                 if (showLoadingState) setIsLoading(true);
                 setError(null);
                 
-                // Fetch incidents from API
                 const data = await incidentService.getIncidentsByProject(projectId);
                 
                 if (isMounted) setIncidents(data);
@@ -42,16 +41,20 @@ export function useIncidents(projectId: string | undefined) {
 
         fetchIncidents(true);
 
-        const intervalId = setInterval(() => {
-            fetchIncidents(false);
-        }, 10000);
+        let intervalId: any;
+        
+        // 🚀 Polling sirf tab chalegi jab Live Mode ON hoga
+        if (isLiveMode) {
+            intervalId = setInterval(() => {
+                fetchIncidents(false); // Background refresh bina loading spinner ke
+            }, 5000); // 5 seconds ki optimized polling
+        }
 
         return () => {
             isMounted = false;
-            clearInterval(intervalId);
+            if (intervalId) clearInterval(intervalId);
         };
-    }, [projectId]);
+    }, [projectId, isLiveMode]);
 
-    // Hook ye 3 cheezein return karega jo UI ko chahiye
     return { incidents, isLoading, error };
 }

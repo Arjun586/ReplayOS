@@ -1,6 +1,6 @@
 // client/src/features/incidents/pages/Incidents.tsx
 import { useState } from 'react';
-import { Activity, Loader2, ListFilter } from 'lucide-react';
+import { Activity, Loader2, ListFilter, Radio } from 'lucide-react';
 import { useAuth } from '../../../core/context/auth';
 import { apiClient } from '../../../core/api/client';
 import IncidentTable from '../components/IncidentTable';
@@ -8,6 +8,7 @@ import IncidentTable from '../components/IncidentTable';
 export default function Incidents() {
     const [refreshKey, setRefreshKey] = useState(0);
     const [isSimulating, setIsSimulating] = useState(false);
+    const [isLiveMode, setIsLiveMode] = useState(false);
     const { activeProject } = useAuth();
 
     const handleSimulateTraffic = async () => {
@@ -32,6 +33,18 @@ export default function Incidents() {
                 </div>
                 
                 <div className="flex items-center gap-3">
+                    {/* 🚀 LIVE MODE TOGGLE BUTTON */}
+                    <button 
+                        onClick={() => setIsLiveMode(!isLiveMode)}
+                        className={`flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-medium transition-all ${
+                            isLiveMode 
+                                ? 'bg-green-500/10 text-green-400 border border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.15)]' 
+                                : 'bg-surface border border-surfaceBorder text-gray-300 hover:text-white'
+                        }`}
+                    >
+                        <Radio size={16} className={isLiveMode ? "animate-pulse" : ""} />
+                        Live Feed: {isLiveMode ? 'ON' : 'OFF'}
+                    </button>
                     <button className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors bg-surface border border-surfaceBorder px-4 py-2 rounded-lg font-medium">
                         <ListFilter size={16} /> Filter
                     </button>
@@ -42,7 +55,7 @@ export default function Incidents() {
                 </div>
             </header>
 
-            <IncidentTable projectId={activeProject?.id} key={refreshKey} />
+            <IncidentTable projectId={activeProject?.id} key={refreshKey} isLiveMode={isLiveMode} />
         </div>
     );
 }
