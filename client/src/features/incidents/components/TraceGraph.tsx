@@ -77,30 +77,54 @@ export default function TraceGraph({ traceId, onViewLogs }: TraceGraphProps) {
     const nodeWidth = 220;
     const nodeHeight = 75;
     const levelWidth = 350;
+    const verticalSpacing = 150; 
+    const centerY = 400; // 🚀 Canvas ka base vertical center
+
     const nodePositions = new Map<string, { x: number; y: number }>();
-    
-    // Position Calculation (Same as before but simplified for readability) [cite: 1782-1809]
+
+    // 1. Find root nodes (nodes with 0 incoming edges)
     const incomingEdgeCounts = new Map<string, number>();
     graphData.nodes.forEach(n => incomingEdgeCounts.set(n.id, 0));
     graphData.edges.forEach(e => incomingEdgeCounts.set(e.target, (incomingEdgeCounts.get(e.target) || 0) + 1));
     const roots = graphData.nodes.filter(n => incomingEdgeCounts.get(n.id) === 0);
-    
+
+    // 2. 🚀 NEW ALGORITHM: Group nodes by level first
+    const levels: any[][] = [];
     let currentLevel = roots;
-    let depth = 0;
+    const processed = new Set<string>();
+
     while (currentLevel.length > 0) {
+        levels.push(currentLevel);
+        currentLevel.forEach(n => processed.add(n.id));
+
         const nextLevel: any[] = [];
-        currentLevel.forEach((node, i) => {
-            if (!nodePositions.has(node.id)) {
-                nodePositions.set(node.id, { x: depth * levelWidth + 100, y: i * 150 + 100 });
-                graphData.edges.filter(e => e.source === node.id).forEach(edge => {
-                    const child = graphData.nodes.find(n => n.id === edge.target);
-                    if (child) nextLevel.push(child);
-                });
-            }
+        currentLevel.forEach(node => {
+            graphData.edges.filter(e => e.source === node.id).forEach(edge => {
+                const child = graphData.nodes.find(n => n.id === edge.target);
+                // Ensure we don't process a node twice (prevents infinite loops)
+                if (child && !processed.has(child.id) && !nextLevel.find(n => n.id === child.id)) {
+                    nextLevel.push(child);
+                }
+            });
         });
         currentLevel = nextLevel;
-        depth++;
     }
+
+    // 3. 🚀 NEW ALGORITHM: Assign positions centered around the Y-axis
+    levels.forEach((levelNodes, depth) => {
+        // Calculate total height this level will take
+        const totalHeight = levelNodes.length * verticalSpacing;
+        
+        // Find the starting Y position so the whole group is centered at centerY
+        const startY = centerY - (totalHeight / 2) + (verticalSpacing / 2);
+
+        levelNodes.forEach((node, i) => {
+            nodePositions.set(node.id, { 
+                x: depth * levelWidth + 100, 
+                y: startY + i * verticalSpacing 
+            });
+        });
+    });
 
     return (
         <div 
@@ -141,9 +165,9 @@ export default function TraceGraph({ traceId, onViewLogs }: TraceGraphProps) {
                 <motion.div 
                     style={{ x, y, scale }}
                     className="absolute inset-0 pointer-events-none opacity-20"
-                    // Isse background grid bhi move hogi
                 >
-                    <div className="w-[5000px] h-[5000px] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px] -translate-x-1/2 -translate-y-1/2" />
+                    {/* 🚀 FIX 1: Increased grid size to 20000px so the background never cuts off */}
+                    <div className="absolute top-1/2 left-1/2 w-[20000px] h-[20000px] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px] -translate-x-1/2 -translate-y-1/2" />
                 </motion.div>
 
                 <motion.div
@@ -152,7 +176,11 @@ export default function TraceGraph({ traceId, onViewLogs }: TraceGraphProps) {
                     style={{ x, y, scale }}
                     className="absolute inset-0 origin-center"
                 >
-                    <svg className="absolute inset-0 pointer-events-none" width="5000" height="5000">
+                    {/* 🚀 FIX 2: Giant Invisible Drag Surface to ensure you never run out of draggable space */}
+                    <div className="absolute top-1/2 left-1/2 w-[20000px] h-[20000px] -translate-x-1/2 -translate-y-1/2 bg-transparent" />
+
+                    {/* 🚀 FIX 3: Changed SVG to overflow-visible so lines never clip regardless of graph size */}
+                    <svg className="absolute inset-0 pointer-events-none overflow-visible" width="100%" height="100%">
                         <defs>
                             <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#6366f1" /></marker>
                             <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" /></marker>
@@ -163,7 +191,22 @@ export default function TraceGraph({ traceId, onViewLogs }: TraceGraphProps) {
                             const s = nodePositions.get(edge.source);
                             const t = nodePositions.get(edge.target);
                             if (!s || !t) return null;
-                            const path = `M ${s.x + nodeWidth} ${s.y + nodeHeight/2} C ${s.x + nodeWidth + 60} ${s.y + nodeHeight/2}, ${t.x - 60} ${t.y + nodeHeight/2}, ${t.x} ${t.y + nodeHeight/2}`;
+
+                            const startX = s.x + nodeWidth;
+                            const startY = s.y + nodeHeight / 2;
+                            const endX = t.x;
+                            
+                            // 🚀 Wahi purana hack horizontal straight lines ke neon filter bug ke liye
+                            const endY = t.y + nodeHeight / 2 + (s.y === t.y ? 0.01 : 0);
+
+                            // 🚀 THE FIX: Control points for angled entry
+                            const cp1X = startX + 80;
+                            const cp1Y = startY;
+                            const cp2X = endX - 80;
+                            // Flat horizontal end ke bajaye, hum thoda sa angle (25%) chhod rahe hain
+                            const cp2Y = endY - (endY - startY) * 0.25; 
+
+                            const path = `M ${startX} ${startY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${endX} ${endY}`;
                             const isErr = graphData.nodes.find(n => n.id === edge.target)?.hasError;
                             
                             return (
@@ -184,6 +227,7 @@ export default function TraceGraph({ traceId, onViewLogs }: TraceGraphProps) {
                     {graphData.nodes.map((node) => {
                         const pos = nodePositions.get(node.id);
                         if (!pos) return null;
+    
                         return (
                             <motion.div
                                 key={node.id}
