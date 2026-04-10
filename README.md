@@ -95,6 +95,7 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] **Advanced Sidebar Command Center:** Dynamic Project Switcher: A dropdown at the top of the sidebar for seamless navigation between multiple isolated projects.Service Health Overview: A global status indicator to monitor the real-time health (Up/Down) of every connected microservice.
 - [x] **Interactive Trace Exploration:** Span Metadata Inspector: A slide-over panel triggered by clicking a span in the Waterfall view to display raw tags, metadata, and high-precision timestamps. Deep Linking (Waterfall to Logs): Automatic page scrolling and highlighting of specific log events when a corresponding span is selected in the trace view.
 - [x] **Next-Gen Timeline Observability:** Contextual Metadata Drawer: A sleek slide-out panel that instantly reveals deep OpenTelemetry attributes, raw SQL payloads, and full error stack traces upon clicking a span without cluttering the main UI. Smart Span Collapsing: Automatically detects and groups repetitive N+1 query patterns into single expandable blocks to optimize DOM performance and readability. Critical Path Highlighting: Algorithmically traces and visually highlights the exact sequence of bottlenecks contributing to the highest request latency.
+- [x] **Live Traffic Feed:** A "Live Mode" dashboard toggle that utilizes optimized periodic polling to display incoming incidents and traces without requiring a manual refresh.
 
 
 ## 🗺️ Roadmap & Future Scope
@@ -104,9 +105,10 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 ### Phase 4.5: Developer Experience (DX) & UI Polish (In Progress)
 
-- [ ] **Live Traffic Feed:** A "Live Mode" dashboard toggle that utilizes optimized periodic polling to display incoming incidents and traces without requiring a manual refresh.
 
 - [ ] **Enhanced Search & Filtering:** Implementation of multi-factor filtering in the IncidentTable.tsx based on Severity (Critical/Warning) and Service Name
+
+- [ ] **Review Theme Toggle:** Reviewing Toggle Theme for bug
 
 - [ ] **Visual Polishing:** Global integration of Skeleton Loaders to prevent UI "jumps" and layout shifts during the retrieval of heavy trace and log data
 
