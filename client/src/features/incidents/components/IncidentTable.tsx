@@ -8,19 +8,20 @@ import { useEffect } from 'react';
 
 
 interface IncidentTableProps {
-    projectId?: string; 
+    projectId?: string;
     isLiveMode?: boolean;
+    searchParams?: URLSearchParams; // Naya prop
     onDataLoad?: (hasData: boolean) => void;
 }
 
 
-export default function IncidentTable({ onDataLoad, isLiveMode = false }: IncidentTableProps) {
+export default function IncidentTable({ onDataLoad, isLiveMode = false, searchParams }: IncidentTableProps) {
     const { activeProject } = useAuth();
     
     const navigate = useNavigate();
 
 
-    const { incidents, isLoading, error } = useIncidents(activeProject?.id, isLiveMode);
+    const { incidents, isLoading, error } = useIncidents(activeProject?.id, searchParams, isLiveMode);
 
     useEffect(() => {
         // Sirf tab trigger karo jab initial loading complete ho jaye

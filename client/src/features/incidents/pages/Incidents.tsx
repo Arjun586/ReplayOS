@@ -1,15 +1,20 @@
 // client/src/features/incidents/pages/Incidents.tsx
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Activity, Loader2, ListFilter, Radio } from 'lucide-react';
 import { useAuth } from '../../../core/context/auth';
 import { apiClient } from '../../../core/api/client';
 import IncidentTable from '../components/IncidentTable';
+import FilterDrawer from '../components/FilterDrawer';
 
 export default function Incidents() {
     const [refreshKey, setRefreshKey] = useState(0);
     const [isSimulating, setIsSimulating] = useState(false);
     const [isLiveMode, setIsLiveMode] = useState(false);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
     const { activeProject } = useAuth();
+    const [searchParams] = useSearchParams();
 
     const handleSimulateTraffic = async () => {
         if (!activeProject) return;
@@ -23,6 +28,8 @@ export default function Incidents() {
             setIsSimulating(false);
         }
     };
+
+    const activeFilterCount = Array.from(searchParams.keys()).length;
 
     return (
         <div className="max-w-6xl mx-auto space-y-6">
@@ -45,8 +52,17 @@ export default function Incidents() {
                         <Radio size={16} className={isLiveMode ? "animate-pulse" : ""} />
                         Live Feed: {isLiveMode ? 'ON' : 'OFF'}
                     </button>
-                    <button className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors bg-surface border border-surfaceBorder px-4 py-2 rounded-lg font-medium">
-                        <ListFilter size={16} /> Filter
+
+                    <button 
+                        onClick={() => setIsFilterOpen(true)} 
+                        className={`flex items-center gap-2 text-sm transition-colors border px-4 py-2 rounded-lg font-medium ${
+                            activeFilterCount > 0 
+                            ? 'bg-primary/20 border-primary text-primary shadow-[0_0_10px_rgb(var(--primary)/0.2)]' 
+                            : 'bg-surface border-surfaceBorder text-gray-300 hover:text-white hover:bg-surfaceBorder/30'
+                        }`}
+                    >
+                        <ListFilter size={16} /> 
+                        Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
                     </button>
                     <button onClick={handleSimulateTraffic} disabled={isSimulating || !activeProject} className="flex items-center gap-2 bg-glass border border-primary/50 text-primary hover:bg-primary/10 px-4 py-2 rounded-lg font-medium transition-all shadow-[0_0_15px_rgb(var(--primary)/0.15)] disabled:opacity-50">
                         {isSimulating ? <Loader2 size={16} className="animate-spin" /> : <Activity size={16} />}
@@ -54,8 +70,10 @@ export default function Incidents() {
                     </button>
                 </div>
             </header>
+            {/* 🚀 The Filter Drawer */}
+            <FilterDrawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
-            <IncidentTable projectId={activeProject?.id} key={refreshKey} isLiveMode={isLiveMode} />
+            <IncidentTable projectId={activeProject?.id} key={refreshKey} isLiveMode={isLiveMode} searchParams={searchParams} />
         </div>
     );
 }

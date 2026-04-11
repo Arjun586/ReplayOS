@@ -66,7 +66,6 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
 
 
 // server/src/controllers/project.controller.ts
-
 export const simulateTraffic = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id: projectId } = req.params;
@@ -269,5 +268,32 @@ export const simulateTraffic = async (req: Request, res: Response): Promise<void
     } catch (error) {
         console.error("Simulation Error:", error);
         res.status(500).json({ success: false, message: "Failed to simulate traffic" });
+    }
+};
+
+export const getProjectServices = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id: projectId } = req.params;
+
+        // Prisma ka 'distinct' use karke unique service names nikal rahe hain
+        const uniqueServices = await prisma.logEvent.findMany({
+            where: {
+                incident: {
+                    projectId: projectId
+                }
+            },
+            select: { service: true },
+            distinct: ['service']
+        });
+
+        // Array of objects ko simple string array mein convert karna aur nulls hatana
+        const services = uniqueServices
+            .map(s => s.service)
+            .filter((s): s is string => Boolean(s));
+
+        res.status(200).json({ success: true, data: services });
+    } catch (error) {
+        console.error("Error fetching project services:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };

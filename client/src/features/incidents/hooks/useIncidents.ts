@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { incidentService } from '../api/incident.service';
+import { apiClient } from '../../../core/api/client';
 
 interface Incident {
     id: string;
@@ -12,8 +12,8 @@ interface Incident {
     projectId: string;
 }
 
-// 🚀 Naya parameter add kiya 'isLiveMode'
-export function useIncidents(projectId: string | undefined, isLiveMode: boolean = false) {
+// 🚀 Naya signature jisme searchParams added hai
+export function useIncidents(projectId: string | undefined, searchParams?: URLSearchParams, isLiveMode: boolean = false) {
     const [incidents, setIncidents] = useState<Incident[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -28,9 +28,14 @@ export function useIncidents(projectId: string | undefined, isLiveMode: boolean 
                 if (showLoadingState) setIsLoading(true);
                 setError(null);
                 
-                const data = await incidentService.getIncidentsByProject(projectId);
+                // Build query string from searchParams
+                const params = new URLSearchParams(searchParams?.toString() || '');
+                params.set('projectId', projectId); // Ensure project ID is always attached
+
+                // 🚀 Call via apiClient to support dynamic query params from the URL
+                const response = await apiClient.get(`/incidents?${params.toString()}`);
                 
-                if (isMounted) setIncidents(data);
+                if (isMounted) setIncidents(response.data.data);
             } catch (err) {
                 console.error('Failed to fetch incidents:', err);
                 if (isMounted) setError('Failed to load incidents');
@@ -54,7 +59,7 @@ export function useIncidents(projectId: string | undefined, isLiveMode: boolean 
             isMounted = false;
             if (intervalId) clearInterval(intervalId);
         };
-    }, [projectId, isLiveMode]);
+    }, [projectId, searchParams?.toString(), isLiveMode]);
 
     return { incidents, isLoading, error };
 }

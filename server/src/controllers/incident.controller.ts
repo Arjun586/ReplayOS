@@ -49,21 +49,81 @@ export const createIncident = async (req: Request, res: Response): Promise<void>
     }
 };
 
+// server/src/controllers/incident.controller.ts
 export const getIncidents = async (req: Request, res: Response): Promise<void> => {
-    // ... (Your existing getIncidents code is completely fine! Keep it as is.)
     try {
-        const { projectId } = req.query; 
+        const projectId = req.query.projectId as string | undefined;
+        const severity = req.query.severity as string | undefined;
+        const status = req.query.status as string | undefined;
+        const search = req.query.search as string | undefined;
+        const timeRange = req.query.timeRange as string | undefined;
+        const service = req.query.service as string | undefined;
 
-        if (!projectId || typeof projectId !== 'string') {
-            res.status(400).json({ success: false, message: 'projectId is required' });
-            return;
+        // Ab TypeScript ko pata hai ki yeh pakka string hain
+        const whereClause: any = { projectId: projectId };
+
+        if (severity) {
+            whereClause.severity = { in: severity.split(',') };
+        }
+        if (status) {
+            whereClause.status = { in: status.split(',') };
+        }
+        if (service) {
+            whereClause.events = {
+                some: { service: { in: service.split(',') } }
+            };
         }
 
+        // Naya "Deep Search" Code
+        if (search) {
+            whereClause.OR = [
+                { title: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+                // 🚀 Schema ke hisaab se relational deep search
+                {
+                    events: {
+                        some: {
+                            OR: [
+                                { message: { contains: search, mode: 'insensitive' } },
+                                { correlationId: { contains: search, mode: 'insensitive' } },
+                                {
+                                    trace: {
+                                        traceId: { contains: search, mode: 'insensitive' }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ];
+        }
+
+        // Handle Temporal (Time-based) filtering
+        if (timeRange && typeof timeRange === 'string') {
+            const now = new Date();
+            let cutoff = new Date();
+            
+            if (timeRange === '15m') cutoff.setMinutes(now.getMinutes() - 15);
+            else if (timeRange === '1h') cutoff.setHours(now.getHours() - 1);
+            else if (timeRange === '24h') cutoff.setHours(now.getHours() - 24);
+            else if (timeRange === '7d') cutoff.setDate(now.getDate() - 7);
+
+            whereClause.createdAt = { gte: cutoff };
+        }
+
+        // Handle Cross-Service Filtering (Relational Query!)
+        if (service && typeof service === 'string') {
+            whereClause.events = {
+                some: { service: { in: service.split(',') } }
+            };
+        }
+
+        // 2. Execute Query
         const incidents = await prisma.incident.findMany({
-            where: { projectId: projectId },
+            where: whereClause,
             orderBy: { createdAt: 'desc' },
         });
-        
+
         res.status(200).json({ success: true, data: incidents });
     } catch (error) {
         console.error("Error fetching incidents:", error);
