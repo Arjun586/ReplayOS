@@ -1,10 +1,11 @@
 // client/src/features/incidents/components/FilterDrawer.tsx
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Filter, AlertCircle, Server, Loader2 } from 'lucide-react';
+import { X, Filter, AlertCircle, Server } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../core/context/auth'; 
 import { apiClient } from '../../../core/api/client';
+import { Skeleton } from '../../../core/components/Skeleton';
 
 interface FilterDrawerProps {
     isOpen: boolean;
@@ -152,8 +153,13 @@ export default function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
                                 </label>
                                 
                                 {isLoadingServices ? (
-                                    <div className="flex items-center gap-2 text-sm text-muted">
-                                        <Loader2 size={14} className="animate-spin" /> Fetching services...
+                                    <div className="space-y-3 mt-2">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="flex items-center gap-3 p-1">
+                                                <Skeleton className="w-4 h-4 rounded" /> {/* Checkbox skeleton */}
+                                                <Skeleton className="w-32 h-4" /> {/* Label skeleton */}
+                                            </div>
+                                        ))}
                                     </div>
                                 ) : availableServices.length === 0 ? (
                                     <p className="text-sm text-muted">No services found.</p>

@@ -108,6 +108,8 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 - [ ] **Visual Polishing:** Global integration of Skeleton Loaders to prevent UI "jumps" and layout shifts during the retrieval of heavy trace and log data
 
+- [ ] **Status Editor:** Edit Status of incients
+
 - [ ] **Review Theme Toggle:** Reviewing Toggle Theme for bug
 
 
