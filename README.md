@@ -97,6 +97,7 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] **Next-Gen Timeline Observability:** Contextual Metadata Drawer: A sleek slide-out panel that instantly reveals deep OpenTelemetry attributes, raw SQL payloads, and full error stack traces upon clicking a span without cluttering the main UI. Smart Span Collapsing: Automatically detects and groups repetitive N+1 query patterns into single expandable blocks to optimize DOM performance and readability. Critical Path Highlighting: Algorithmically traces and visually highlights the exact sequence of bottlenecks contributing to the highest request latency.
 - [x] **Live Traffic Feed:** A "Live Mode" dashboard toggle that utilizes optimized periodic polling to display incoming incidents and traces without requiring a manual refresh.
 - [x] **Enhanced Search & Filtering:** Implementation of multi-factor filtering in the IncidentTable.tsx based on Severity (Critical/Warning) and Service Name
+- [x] **Visual Polishing:** Global integration of Skeleton Loaders to prevent UI "jumps" and layout shifts during the retrieval of heavy trace and log data
 
 
 ## 🗺️ Roadmap & Future Scope
@@ -105,8 +106,6 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 
 ### Phase 4.5: Developer Experience (DX) & UI Polish (In Progress)
-
-- [ ] **Visual Polishing:** Global integration of Skeleton Loaders to prevent UI "jumps" and layout shifts during the retrieval of heavy trace and log data
 
 - [ ] **Status Editor:** Edit Status of incients
 
