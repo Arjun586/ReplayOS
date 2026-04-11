@@ -1,4 +1,4 @@
-import { LayoutDashboard, AlertCircle, FileText, Settings, ChevronDown, FolderArchive, Activity, Plus, UserPlus, LogOut } from "lucide-react";
+import { LayoutDashboard, AlertCircle, Settings, ChevronDown, FolderArchive, Activity, Plus, UserPlus, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -58,8 +58,8 @@ export default function Sidebar() {
             {/* 1. BRANDING */}
             <div className="p-4 relative">
                 <div className="flex items-center gap-3 px-2 mb-6 mt-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/50 shadow-[0_0_15px_rgba(139,92,246,0.3)]">
-                        <Activity size={18} className="text-primary" />
+                    <div className="w-8 h-8 rounded-lg brand-logo">
+                        <Activity size={18} />
                     </div>
                     <h1 className="text-gray-100 font-bold text-lg tracking-wide">
                         Replay<span className="text-primary">OS</span>
@@ -143,10 +143,10 @@ export default function Sidebar() {
                             key={item.name}
                             to={item.href}
                             className={({ isActive }) => 
-                                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                                     isActive 
-                                    ? 'bg-primary/10 text-primary shadow-[inset_2px_0_0_rgb(139,92,246)]' 
-                                    : 'text-gray-400 hover:bg-surfaceBorder/30 hover:text-gray-200'
+                                    ? 'sidebar-link-active shadow-[inset_2px_0_0_rgb(var(--primary))]' /* ✅ NAYA THEME-PROOF CODE */
+                                    : 'text-gray-400 hover:bg-surfaceBorder/30 hover:text-gray-200 font-medium'
                                 }`
                             }
                         >
@@ -159,17 +159,22 @@ export default function Sidebar() {
 
             {/* 4. USER PROFILE & ACTIONS (Bottom) */}
             <div className="p-4 border-t border-surfaceBorder bg-surfaceBorder/5">
+            
                 <div className="flex items-center gap-3 px-1 mb-4">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">
+                    <div className="w-9 h-9 rounded-full brand-logo font-bold text-lg">
                         {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div className="flex flex-col flex-1 overflow-hidden">
                         <span className="text-sm font-semibold text-gray-200 truncate">{user?.name}</span>
                         <div className="flex items-center gap-2">
                             {activeOrganization?.role === 'ADMIN' ? (
-                                <span className="text-[9px] font-bold bg-primary/20 text-primary px-1.5 py-0.5 rounded">ADMIN</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded theme-icon-box tracking-wider">
+                                    ADMIN
+                                </span>
                             ) : (
-                                <span className="text-[9px] font-bold bg-surfaceBorder text-muted px-1.5 py-0.5 rounded">MEMBER</span>
+                                <span className="text-[9px] font-bold bg-surfaceBorder text-muted px-1.5 py-0.5 rounded tracking-wider">
+                                    MEMBER
+                                </span>
                             )}
                         </div>
                     </div>

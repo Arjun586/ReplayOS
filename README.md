@@ -1,9 +1,9 @@
-# Failure Replay Platform 🕵️‍♂️
+# ReplayOS Platform 🕵️‍♂️
 
 An enterprise-grade developer observability and incident management tool. This platform ingests raw backend logs, API traces, and bug reports, parses the telemetry asynchronously, and reconstructs complex system failures into visual, playable timelines for rapid root-cause analysis (RCA).
 
 ## 🚀 The Vision
-When a distributed system crashes, engineers waste hours manually grepping through massive, noisy log files. **Failure Replay** automates the evidence-gathering phase. By normalizing telemetry and visualizing the exact sequence of events leading to a failure, teams can "replay" the incident, identify the root cause faster, and auto-generate comprehensive postmortems.
+When a distributed system crashes, engineers waste hours manually grepping through massive, noisy log files. **ReplayOS** automates the evidence-gathering phase. By normalizing telemetry and visualizing the exact sequence of events leading to a failure, teams can "replay" the incident, identify the root cause faster, and auto-generate comprehensive postmortems.
 
 ---
 
@@ -99,6 +99,8 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] **Enhanced Search & Filtering:** Implementation of multi-factor filtering in the IncidentTable.tsx based on Severity (Critical/Warning) and Service Name
 - [x] **Visual Polishing:** Global integration of Skeleton Loaders to prevent UI "jumps" and layout shifts during the retrieval of heavy trace and log data
 - [x] **Status Editor:** Edit Status of incients
+- [x] **Review Theme Toggle:** Reviewing Toggle Theme for bug
+
 
 
 ## 🗺️ Roadmap & Future Scope
@@ -108,8 +110,9 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 ### Phase 4.5: Developer Experience (DX) & UI Polish (In Progress)
 
+- [ ] **Udpate Command Center:** Update System Status, When incident resolve change active critcal alerts
+- [ ] **Fix Upload Logs:** Recheck that manual uploading is working or not
 
-- [ ] **Review Theme Toggle:** Reviewing Toggle Theme for bug
 
 
 

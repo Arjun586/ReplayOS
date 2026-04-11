@@ -88,8 +88,8 @@ export default function Register() {
                     <div className="flex flex-col items-center mb-8">
                         <motion.div 
                             animate={{ y: [-2, 2, -2] }} 
-                            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                            className="w-12 h-12 bg-primary/20 text-primary rounded-xl flex items-center justify-center mb-4 shadow-[0_0_15px_rgb(var(--primary)/0.2)]"
+                            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} 
+                            className="w-12 h-12 rounded-xl mb-4 brand-logo"
                         >
                             <TerminalSquare size={28} />
                         </motion.div>

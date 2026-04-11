@@ -74,12 +74,12 @@ export default function Login() {
                         <motion.div 
                             animate={{ y: [-2, 2, -2] }} 
                             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} 
-                            className="w-12 h-12 bg-primary/20 text-primary rounded-xl flex items-center justify-center mb-4 shadow-[0_0_15px_rgb(var(--primary)/0.2)]"
+                            className="w-12 h-12 rounded-xl mb-4 brand-logo"
                         >
                             <TerminalSquare size={28} />
                         </motion.div>
                         <h1 className="text-2xl font-bold text-gray-100">Welcome Back</h1>
-                        <p className="text-muted text-sm mt-1">Sign in to Failure Replay</p>
+                        <p className="text-muted text-sm mt-1">Sign in to ReplayOS</p>
                     </div>
 
                     {/* Error Banner */}

@@ -90,7 +90,7 @@ export default function Landing() {
         { time: '10:00:22.019', level: 'WARN', text: '[auth-svc] High latency detected on DB-01', color: 'text-yellow-400' },
         { time: '10:00:34.882', level: 'ERROR', text: '[payment-svc] Connection timeout to Stripe API', color: 'text-red-400' },
         { time: '10:00:35.105', level: 'FATAL', text: '[payment-svc] Unhandled Promise Rejection. Process exiting.', color: 'text-red-500 font-bold' },
-        { time: '10:01:02.000', level: 'SYSTEM', text: 'Failure Replay ingested 14,205 events.', color: 'text-primary' },
+        { time: '10:01:02.000', level: 'SYSTEM', text: 'ReplayOS ingested 14,205 events.', color: 'text-primary' },
         { time: '10:01:03.450', level: 'SYSTEM', text: 'Visual timeline generated. Root cause identified.', color: 'text-green-400' }
     ];
 
@@ -105,10 +105,10 @@ export default function Landing() {
             <nav className="fixed top-0 left-0 right-0 w-full border-b border-glassBorder bg-surface/80 backdrop-blur-md z-50 shadow-sm transition-colors duration-500">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2 group cursor-pointer">
-                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_15px_rgb(var(--primary)/0.5)] group-hover:scale-110 group-hover:shadow-[0_0_25px_rgb(var(--primary)/0.8)] transition-all">
-                            <TerminalSquare size={18} className="text-white" />
+                        <div className="w-8 h-8 rounded-lg brand-logo group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(var(--primary),0.6)]">
+                            <TerminalSquare size={18} />
                         </div>
-                        <span className="font-bold text-lg tracking-wide">Failure<span className="text-primary">Replay</span></span>
+                        <span className="font-bold text-lg tracking-wide">Replay<span className="text-primary">OS</span></span>
                     </div>
                     <div className="flex items-center gap-4">
                         <ThemeDropdown />
@@ -128,7 +128,7 @@ export default function Landing() {
                         className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-glass backdrop-blur-md border border-primary/30 text-primary text-sm font-medium mb-6 cursor-default hover:bg-primary/20 transition-colors shadow-[0_0_15px_rgb(var(--primary)/0.15)]"
                     >
                         <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                        Failure Replay v1.0 is Live
+                        ReplayOS v1.0 is Live
                     </motion.div>
                     
                     <motion.h1 
@@ -232,7 +232,7 @@ export default function Landing() {
                             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
                             className="text-muted max-w-2xl mx-auto text-lg"
                         >
-                            See exactly how Failure Replay transforms gigabytes of unreadable text into actionable intelligence.
+                            See exactly how ReplayOS transforms gigabytes of unreadable text into actionable intelligence.
                         </motion.p>
                     </div>
 
@@ -272,9 +272,12 @@ export default function Landing() {
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {features.map((feature, i) => (
                             <SpotlightCard key={i} className="p-6 group cursor-default shadow-lg">
-                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_20px_rgb(var(--primary)/0.5)] transition-all duration-300">
+                                
+                                {/* 🚀 Sirf is div ki classes update hui hain */}
+                                <div className="w-12 h-12 rounded-xl mb-6 theme-icon-box group-hover:scale-110 group-hover:bg-primary group-hover:text-white group-hover:shadow-[0_0_20px_rgba(var(--primary),0.5)] transition-all duration-300">
                                     <feature.icon size={24} />
                                 </div>
+                                
                                 <h3 className="text-lg font-bold mb-3 text-gray-100">{feature.title}</h3>
                                 <p className="text-muted text-sm leading-relaxed">{feature.desc}</p>
                             </SpotlightCard>
@@ -310,7 +313,7 @@ export default function Landing() {
             </section>
 
             <footer className="border-t border-glassBorder bg-glass backdrop-blur-md py-8 text-center text-muted text-sm relative z-10 transition-colors duration-500">
-                <p>© {new Date().getFullYear()} Failure Replay. Built for developers, by developers.</p>
+                <p>© {new Date().getFullYear()} ReplayOS. Built for developers, by developers.</p>
             </footer>
         </div>
     );

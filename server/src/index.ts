@@ -32,7 +32,7 @@ app.use(morgan('dev')); // Logs requests in the terminal (e.g., "POST /api/incid
 // --- ROUTES ---
 // Health Check
 app.get('/api/health', (req: Request, res: Response) => {
-    res.status(200).json({ status: 'success', message: 'Failure Replay API is running smoothly. 🚀' });
+    res.status(200).json({ status: 'success', message: 'ReplayOS API is running smoothly. 🚀' });
 });
 
 

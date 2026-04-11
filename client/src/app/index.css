@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
-
 @layer base {
   /* 1. Default Purple Theme */
   :root, [data-theme="purple"] {
@@ -47,24 +44,80 @@
   }
 }
 
+/* 🚀 NAYA CODE: Logo ko theme-aware banane ke liye */
+@layer components {
+  .brand-logo {
+    @apply flex items-center justify-center transition-all duration-300;
+    background-color: rgb(var(--primary) / 0.2);
+    border: 1px solid rgb(var(--primary) / 0.5);
+    box-shadow: 0 0 15px rgb(var(--primary) / 0.3);
+    color: rgb(var(--primary));
+  }
 
+  /* Gray theme ke liye extra contrast taaki background mein blend na ho */
+  [data-theme="gray"] .brand-logo {
+    background-color: rgb(var(--primary) / 0.25);
+    border: 1px solid rgb(var(--primary) / 0.8);
+    box-shadow: 0 0 15px rgb(var(--primary) / 0.15);
+    color: #ffffff; /* Pure white icon pops better against gray */
+  }
+}
 
-[data-theme="gray"] button.bg-primary, [data-theme="gray"] a.bg-primary {
+[data-theme="gray"] button.bg-primary, 
+[data-theme="gray"] a.bg-primary {
+    color: #000000 !important; /* Default state mein text ko black/dark karna */
+    font-weight: 600; /* Text ko thoda bold karna taaki contrast aur achha aaye */
     transition: all 0.2s ease-in-out !important;
 }
-[data-theme="gray"] button.bg-primary:hover, [data-theme="gray"] a.bg-primary:hover {
+
+[data-theme="gray"] button.bg-primary:hover, 
+[data-theme="gray"] a.bg-primary:hover {
+    background-color: #ffffff !important; /* Hover par button pure white ho jayega */
     color: #000000 !important;
 }
 
+/* NAYA CODE: Feature Cards ke icons aur badges ke liye */
+.theme-icon-box {
+  @apply flex items-center justify-center transition-all duration-300;
+  background-color: rgb(var(--primary) / 0.15);
+  color: rgb(var(--primary));
+}
+  
+[data-theme="gray"] .group:hover .theme-icon-box {
+  color: #000000 !important;
+}
+
+.theme-badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-[13px] font-semibold transition-colors;
+  background-color: rgb(var(--primary) / 0.1);
+  color: rgb(var(--primary));
+  border: 1px solid rgb(var(--primary) / 0.2);
+}
+
+[data-theme="gray"] .theme-badge {
+  background-color: rgb(var(--primary) / 0.2);
+  color: #ffffff; /* Gray theme mein badge text pure white hoga */
+  border-color: rgb(var(--primary) / 0.4);
+}
+
+.sidebar-link-active {
+    @apply font-semibold transition-all duration-300;
+    background-color: rgb(var(--primary) / 0.15);
+    color: rgb(var(--primary));
+  }
+
+  /* Gray theme ke liye extra contrast */
+  [data-theme="gray"] .sidebar-link-active {
+    background-color: rgb(var(--primary) / 0.25);
+    color: #ffffff; 
+  }
 
 @layer utilities {
-  /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

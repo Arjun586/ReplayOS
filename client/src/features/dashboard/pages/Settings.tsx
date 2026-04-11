@@ -59,7 +59,7 @@ export default function Settings() {
                         <h3 className="font-bold text-gray-100">Appearance</h3>
                     </div>
                     <div className="p-6">
-                        <p className="text-sm text-muted mb-6">Customize the look and feel of your Failure Replay workspace.</p>
+                        <p className="text-sm text-muted mb-6">Customize the look and feel of your ReplayOS workspace.</p>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             {themes.map((t) => (
                                 <button

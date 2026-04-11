@@ -69,7 +69,7 @@ export default function AcceptInvite() {
                         </div>
                         <h1 className="text-2xl font-bold text-gray-100">Join the Team</h1>
                         <p className="text-muted text-sm mt-1 text-center">
-                            You've been invited to join an organization on Failure Replay. Set up your account to continue.
+                            You've been invited to join an organization on ReplayOS. Set up your account to continue.
                         </p>
                     </div>
 
