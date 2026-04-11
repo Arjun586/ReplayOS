@@ -1,6 +1,6 @@
 // client/src/features/incidents/components/IncidentTable.tsx
 import { formatDistanceToNow } from 'date-fns';
-import { AlertCircle, Clock } from 'lucide-react';
+import { AlertCircle, Clock, CheckCircle2, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../core/context/auth';
 import { useIncidents } from '../hooks/useIncidents';
@@ -32,6 +32,18 @@ export default function IncidentTable({ onDataLoad, isLiveMode = false, searchPa
             case 'high': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
             case 'medium': return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
             default: return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+        }
+    };
+
+    const getStatusStyles = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'resolved': 
+                return { bg: 'bg-green-500/10', text: 'text-green-500', border: 'border-green-500/20', icon: <CheckCircle2 size={14} /> };
+            case 'in_progress': 
+                return { bg: 'bg-yellow-500/10', text: 'text-yellow-500', border: 'border-yellow-500/20', icon: <Activity size={14} /> };
+            case 'open':
+            default: 
+                return { bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500/20', icon: <Clock size={14} /> };
         }
     };
 
@@ -70,31 +82,38 @@ export default function IncidentTable({ onDataLoad, isLiveMode = false, searchPa
                         ))}
 
                         {/* 🚀 DATA ROWS */}
-                        {!isLoading && incidents.map((incident) => (
-                            <tr key={incident.id} 
-                                onClick={() => navigate(`/incident/${incident.id}`)} // Fixed route from /incident/ to /incidents/ (if your route uses plural)
-                                className="hover:bg-surfaceBorder/20 transition-colors cursor-pointer"
-                            >
-                                <td className="px-6 py-4 font-medium text-gray-200 flex items-center gap-3">
-                                    <AlertCircle size={16} className={incident.severity === 'critical' ? 'text-red-500' : 'text-muted'} />
-                                    <span className="truncate max-w-[300px]">{incident.title}</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="flex items-center gap-1.5 text-blue-400">
-                                        <Clock size={14} /> 
-                                        {incident.status?.toUpperCase() || 'OPEN'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${getSeverityColor(incident.severity)}`}>
-                                        {incident.severity?.toUpperCase() || 'UNKNOWN'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-muted whitespace-nowrap">
-                                    {formatDistanceToNow(new Date(incident.createdAt), { addSuffix: true })}
-                                </td>
-                            </tr>
-                        ))}
+                        {!isLoading && incidents.map((incident) => {
+                            const statusStyle = getStatusStyles(incident.status); 
+                            
+                            return (
+                                <tr key={incident.id} 
+                                    onClick={() => navigate(`/incident/${incident.id}`)}
+                                    className="hover:bg-surfaceBorder/20 transition-colors cursor-pointer"
+                                >
+                                    <td className="px-6 py-4 font-medium text-gray-200 flex items-center gap-3">
+                                        <AlertCircle size={16} className={incident.severity === 'critical' ? 'text-red-500' : 'text-muted'} />
+                                        <span className="truncate max-w-[300px]">{incident.title}</span>
+                                    </td>
+                                    
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
+                                            {statusStyle.icon} 
+                                            {incident.status?.replace('_', ' ').toUpperCase() || 'OPEN'}
+                                        </span>
+                                    </td>
+                                    
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${getSeverityColor(incident.severity)}`}>
+                                            {incident.severity?.toUpperCase() || 'UNKNOWN'}
+                                        </span>
+                                    </td>
+                                    
+                                    <td className="px-6 py-4 text-muted whitespace-nowrap">
+                                        {formatDistanceToNow(new Date(incident.createdAt), { addSuffix: true })}
+                                    </td>
+                                </tr>
+                            );
+                        })}
 
                         {/* 🚀 EMPTY STATE */}
                         {!isLoading && incidents.length === 0 && (

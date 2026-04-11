@@ -98,6 +98,7 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] **Live Traffic Feed:** A "Live Mode" dashboard toggle that utilizes optimized periodic polling to display incoming incidents and traces without requiring a manual refresh.
 - [x] **Enhanced Search & Filtering:** Implementation of multi-factor filtering in the IncidentTable.tsx based on Severity (Critical/Warning) and Service Name
 - [x] **Visual Polishing:** Global integration of Skeleton Loaders to prevent UI "jumps" and layout shifts during the retrieval of heavy trace and log data
+- [x] **Status Editor:** Edit Status of incients
 
 
 ## 🗺️ Roadmap & Future Scope
@@ -107,7 +108,6 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 ### Phase 4.5: Developer Experience (DX) & UI Polish (In Progress)
 
-- [ ] **Status Editor:** Edit Status of incients
 
 - [ ] **Review Theme Toggle:** Reviewing Toggle Theme for bug
 

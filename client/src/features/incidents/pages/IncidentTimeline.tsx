@@ -1,16 +1,19 @@
 // client/src/features/incidents/pages/IncidentTimeline.tsx
-import { useState, useRef } from 'react';
+import { useState, useRef} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, AlertCircle, Info, AlertTriangle, FileTerminal, FileText, Server, ListTree, Activity, Network } from 'lucide-react';
-import { Virtuoso,  } from 'react-virtuoso';
-import type {VirtuosoHandle} from 'react-virtuoso'
+import { Virtuoso } from 'react-virtuoso';
+import type { VirtuosoHandle } from 'react-virtuoso';
+
 import PostmortemModal from '../components/PostmortemModal';
 import { useTimeline } from '../hooks/useTimeline';
 import TraceGraph from "../components/TraceGraph";
 import SpanWaterfall from '../components/SpanWaterfall';
 
+// 👉 IMPORT THE READY-MADE DROPDOWN
+import StatusDropdown from '../components/StatusDropdown';
 
 type ViewMode = 'timeline' | 'waterfall' | 'graph';
 
@@ -20,11 +23,17 @@ export default function IncidentTimeline() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeView, setActiveView] = useState<ViewMode>('timeline');
     
-    // NEW: States for Deep Linking
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const [highlightedSpanId, setHighlightedSpanId] = useState<string | null>(null);
-
+    
     const { incident, logs, isLoading, loadMoreLogs, hasMore, error } = useTimeline(id);
+
+    // 👉 Track ONLY the status if the user changes it locally
+    const [localStatus, setLocalStatus] = useState<string | null>(null);
+
+    // 👉 Derive the actual status: Use the user's override if it exists, otherwise fallback to the database value
+    const currentStatus = localStatus || incident?.status || 'open';;
+
 
     const getEventStyles = (level: string) => {
         switch (level.toUpperCase()) {
@@ -39,15 +48,12 @@ export default function IncidentTimeline() {
 
     const primaryTraceId = logs.find(e => e.traceRefId)?.traceRefId || logs.find(e => e.correlationId)?.correlationId;
 
-    // 🚀 NEW: Handle Deep Link from Waterfall to Logs
     const handleJumpToLogs = (spanId: string) => {
         setActiveView('timeline');
         setHighlightedSpanId(spanId);
 
-        // Find the index of the first log associated with this span
         const targetIndex = logs.findIndex(log => log.spanRefId === spanId);
         
-        // Wait for AnimatePresence to unmount waterfall and mount timeline
         setTimeout(() => {
             if (targetIndex !== -1 && virtuosoRef.current) {
                 virtuosoRef.current.scrollToIndex({
@@ -57,28 +63,38 @@ export default function IncidentTimeline() {
                 });
             }
         }, 200);
-
-        // Remove highlight after 3 seconds
+        
         setTimeout(() => setHighlightedSpanId(null), 3000);
     };
 
     return (
         <div className="w-full max-w-5xl mx-auto pb-20 px-4">
-            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-muted hover:text-gray-200 transition-colors mb-6 group">
-                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
+            <button onClick={() => navigate('/incidents')} className="flex items-center gap-2 text-muted hover:text-gray-200 transition-colors mb-6 group">
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Incidents
             </button>
 
+            {/* HEADER SECTION */}
             <div className="mb-8 flex justify-between items-start bg-surface border border-surfaceBorder p-6 rounded-2xl shadow-sm">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-4 mb-3">
                         <div className={`p-2 rounded-lg ${getEventStyles(incident.severity === 'critical' ? 'ERROR' : 'WARNING').bg}`}>
                             <FileTerminal size={24} className={getEventStyles(incident.severity === 'critical' ? 'ERROR' : 'WARNING').color} />
                         </div>
                         <h1 className="text-2xl font-bold text-gray-100">{incident.title}</h1>
+                        
+                        {/* 👉 INJECT THE STATUS DROPDOWN HERE */}
+                        <div className="ml-2">
+                            <StatusDropdown 
+                                incidentId={incident.id} 
+                                currentStatus={currentStatus} 
+                                onStatusUpdate={setLocalStatus} 
+                            />
+                        </div>
                     </div>
                     <p className="text-muted">{incident.description}</p>
                 </div>
-                <button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg flex items-center gap-2">
+                
+                <button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg flex items-center gap-2 shrink-0">
                     <FileText size={18} /> Generate Post-mortem
                 </button>
             </div>
@@ -131,7 +147,7 @@ export default function IncidentTimeline() {
                                 itemContent={(index, event) => {
                                     const styles = getEventStyles(event.level);
                                     const isHighlighted = highlightedSpanId !== null && event.spanRefId === highlightedSpanId;
-
+                                    
                                     return (
                                         <div className={`relative bg-surface border rounded-xl p-4 transition-all duration-500 mb-6 
                                             ${isHighlighted ? 'border-primary shadow-[0_0_20px_rgba(139,92,246,0.25)] scale-[1.02] z-10' : 'border-surfaceBorder shadow-sm hover:border-surfaceBorder/80'}
