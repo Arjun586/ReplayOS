@@ -101,19 +101,13 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] **Status Editor:** Edit Status of incients
 - [x] **Review Theme Toggle:** Reviewing Toggle Theme for bug
 - [x] **Udpate Command Center:** Update System Status, When incident resolve change active critcal alerts
+- [x] **Fix Upload Logs:** Recheck that manual uploading is working or not
 
 
 
 ## 🗺️ Roadmap & Future Scope
 
 This project is continually evolving from a single-user MVP into a fully-fledged enterprise SaaS product. Here is the exact roadmap for upcoming features and architectural upgrades:
-
-
-### Phase 4.5: Developer Experience (DX) & UI Polish (In Progress)
-
-- [ ] **Fix Upload Logs:** Recheck that manual uploading is working or not
-
-
 
 
 
