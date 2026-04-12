@@ -110,6 +110,9 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 This project is continually evolving from a single-user MVP into a fully-fledged enterprise SaaS product. Here is the exact roadmap for upcoming features and architectural upgrades:
 
 
+### Must Do before Phase 5
+- [ ] **Live Working:** Check if All this is working with Live Project
+
 
 ### Phase 5: Enterprise Scalability
 - [ ] **Background Workers:** Move the `parseLogFile` service out of the Express request cycle and into a Redis-backed BullMQ worker queue to handle 100MB+ files without blocking the API.
