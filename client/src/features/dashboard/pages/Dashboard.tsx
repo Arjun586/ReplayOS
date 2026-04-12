@@ -14,7 +14,7 @@ export default function Dashboard() {
     const [isUploadOpen, setIsUploadOpen] = useState(false);
 
     // Calculate mock metrics based on existing incidents
-    const criticalCount = incidents.filter(i => i.severity === 'critical').length;
+    const criticalCount = incidents.filter(i => i.severity === 'critical' && i.status !== 'resolved').length;
     const resolvedCount = incidents.filter(i => i.status === 'resolved').length;
     const systemHealthy = criticalCount === 0;
 

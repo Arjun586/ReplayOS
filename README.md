@@ -100,6 +100,7 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] **Visual Polishing:** Global integration of Skeleton Loaders to prevent UI "jumps" and layout shifts during the retrieval of heavy trace and log data
 - [x] **Status Editor:** Edit Status of incients
 - [x] **Review Theme Toggle:** Reviewing Toggle Theme for bug
+- [x] **Udpate Command Center:** Update System Status, When incident resolve change active critcal alerts
 
 
 
@@ -110,7 +111,6 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 ### Phase 4.5: Developer Experience (DX) & UI Polish (In Progress)
 
-- [ ] **Udpate Command Center:** Update System Status, When incident resolve change active critcal alerts
 - [ ] **Fix Upload Logs:** Recheck that manual uploading is working or not
 
 
