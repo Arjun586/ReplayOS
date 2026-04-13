@@ -19,7 +19,7 @@ export default function SetupGuide({
     // ... (Tumhara same codeSnippets object yahan rahega) ...
     const codeSnippets = {
 node: `// 1. Install the ReplayOS SDK directly from our GitHub repo
-    // npm install github:Arjun586/failure-replay#path:packages/node-sdk
+    // npm install github:Arjun586/ReplayOS#path:packages/node-sdk
 
     const { ReplayOS } = require('@replayos/node');
 

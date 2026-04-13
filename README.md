@@ -133,8 +133,8 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 **1. Clone and Install**
 ```bash
-git clone https://github.com/Arjun586/failure-replay.git
-cd failure-replay
+git clone https://github.com/Arjun586/ReplayOS.git
+cd ReplayOS
 ```
 
 **2. Start the Backend API**
@@ -151,7 +151,7 @@ npm install
 ```
 
 **4. Run Concurrently**
-From the root `failure-replay` folder, run both the API and UI at the same time:
+From the root `ReplayOS` folder, run both the API and UI at the same time:
 ```bash
 npm run dev
 ```
