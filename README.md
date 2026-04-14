@@ -104,6 +104,7 @@ A hybrid storage approach optimized for both structured relationships and raw fi
 - [x] **Fix Upload Logs:** Recheck that manual uploading is working or not
 - [x] **Create Package:**: Create a ReplayOS for user to use ReplayOS
 - [x] **Update Instrument SDK:** Update instrument SDK for user to connect with ReplayOS withour too much hardship
+- [x] **Fix Live Feed**: Keep Live Feed intact even after move to other routes
 
 
 
@@ -114,7 +115,6 @@ This project is continually evolving from a single-user MVP into a fully-fledged
 
 ### Must Do before Phase 5
 
-- [ ] **Fix Live Feed**: Keep Live Feed intact even after move to other routes
 - [ ] **Create a Documentaion Page:** Create a Documentation Page for How to use in project
 - [ ] **Live Working:** Check if All this is working with Live Project
 

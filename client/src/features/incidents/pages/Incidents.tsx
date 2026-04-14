@@ -1,5 +1,5 @@
 // client/src/features/incidents/pages/Incidents.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Activity, Loader2, ListFilter, Radio } from 'lucide-react';
 import { useAuth } from '../../../core/context/auth';
@@ -10,11 +10,19 @@ import FilterDrawer from '../components/FilterDrawer';
 export default function Incidents() {
     const [refreshKey, setRefreshKey] = useState(0);
     const [isSimulating, setIsSimulating] = useState(false);
-    const [isLiveMode, setIsLiveMode] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const { activeProject } = useAuth();
     const [searchParams] = useSearchParams();
+
+    const [isLiveMode, setIsLiveMode] = useState(() => {
+        const savedMode = localStorage.getItem('replayos_live_mode');
+        return savedMode === 'true';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('replayos_live_mode', isLiveMode.toString());
+    }, [isLiveMode]);
 
     const handleSimulateTraffic = async () => {
         if (!activeProject) return;
