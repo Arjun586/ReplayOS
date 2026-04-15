@@ -2,6 +2,7 @@
 import { Router } from "express";
 import { authenticateUser } from "../middleware/auth.middleware";
 import { authenticateIngest } from "../middleware/traceIngest.middleware";
+import {authorizeProjectAccess} from '../middleware/tenant.middleware';
 import { 
     createTrace, 
     getProjectTraces, 
@@ -22,8 +23,10 @@ router.post("/v1/traces", authenticateIngest, ingestOTLPTraces);
 // 2. DASHBOARD ROUTES (COOKIE REQUIRED)
 // ============================================================================
 // Wrap all dashboard routes in their own authenticateUser middleware
-router.post("/", authenticateUser, createTrace);
-router.get("/", authenticateUser, getProjectTraces);
+
+router.use(authenticateUser);
+router.post("/", authorizeProjectAccess, createTrace);
+router.get("/", authorizeProjectAccess, getProjectTraces);
 router.get("/:traceId/graph", authenticateUser, getTraceGraph);
 router.get("/:traceId", authenticateUser, getTraceById);
 

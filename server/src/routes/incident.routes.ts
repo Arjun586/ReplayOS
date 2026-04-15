@@ -3,14 +3,15 @@ import { Router } from 'express';
 import { createIncident, getIncidentLogs, getIncidents, getIncidentTimeline } from '../controllers/incident.controller';
 import { authenticateUser } from '../middleware/auth.middleware';
 import { updateIncidentStatus } from '../controllers/incident.controller';
+import {authorizeProjectAccess} from '../middleware/tenant.middleware';
 
 const router = Router();
 
 router.use(authenticateUser);
 
 // When someone sends a POST request to this route, run the controller function
-router.post('/', createIncident);
-router.get('/', getIncidents);
+router.post('/', authorizeProjectAccess, createIncident);
+router.get('/', authorizeProjectAccess, getIncidents);
 router.get('/:id/timeline', getIncidentTimeline);
 router.get('/:id/logs', getIncidentLogs);
 router.patch('/:id/status', updateIncidentStatus)

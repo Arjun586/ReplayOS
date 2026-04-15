@@ -1,9 +1,12 @@
 // server/src/index.ts
+import dotenv from 'dotenv';
+dotenv.config();
+
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import incidentRoutes from './routes/incident.routes';
 import uploadRoutes from './routes/upload.routes';
 import authRoutes from './routes/auth.routes';
@@ -12,8 +15,6 @@ import projectRoutes from './routes/project.routes';
 import cookieParser from 'cookie-parser';
 import traceRoutes from './routes/trace.routes';
 
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

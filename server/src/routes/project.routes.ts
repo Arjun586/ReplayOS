@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { getProjects, createProject, simulateTraffic, getProjectServices } from '../controllers/project.controller';
 import { authenticateUser } from '../middleware/auth.middleware';
+import {authorizeProjectAccess} from '../middleware/tenant.middleware';
 
 
 const router = Router();
@@ -9,7 +10,7 @@ const router = Router();
 router.use(authenticateUser);
 router.get('/', getProjects);
 router.post('/', createProject);
-router.post('/:id/simulate', simulateTraffic);
-router.get('/:id/services', getProjectServices);
+router.post('/:projectId/simulate', authorizeProjectAccess,  simulateTraffic);
+router.get('/:projectId/services', authorizeProjectAccess, getProjectServices);
 
 export default router;

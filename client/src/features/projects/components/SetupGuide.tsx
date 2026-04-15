@@ -4,12 +4,14 @@ import { Copy, CheckCircle2, Terminal, Code2,  X } from 'lucide-react';
 
 interface SetupGuideProps {
     projectId: string;
-    ingestUrl?: string; 
+    ingestUrl?: string;
+    ingestKey: string; 
     onClose: () => void; // 👈 Naya prop modal close karne ke liye
 }
 
 export default function SetupGuide({ 
-    projectId, 
+    projectId,
+    ingestKey,
     ingestUrl = 'http://localhost:5000/api/traces/v1/traces',
     onClose
 }: SetupGuideProps) {
@@ -25,8 +27,8 @@ node: `// 1. Install the ReplayOS SDK directly from our GitHub repo
 
     // 2. Initialize the SDK at the top of your main file (e.g., index.js)
     ReplayOS.init({
-    projectId: '${projectId}',
-    ingestKey: 'your-project-ingest-key', // Retrieve this from Project Settings
+    projectId: '${projectId}'
+    ingestKey: '${ingestKey}', // Retrieve this from Project Settings
     serviceName: 'my-production-api',
     ingestUrl: '${ingestUrl}'
     });`
