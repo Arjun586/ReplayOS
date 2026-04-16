@@ -9,7 +9,7 @@ export const authorizeProjectAccess = async (req: AuthRequest, res: Response, ne
     const userId = req.user?.id;
     
     // Dynamically extracts the project ID from query parameters, request body, or URL path parameters
-    const projectId = (req.query.projectId as string) || req.body.projectId || req.params.projectId;
+    const projectId = (req.query.projectId as string) || req.body?.projectId || req.params.projectId;
 
     // Returns a 400 Bad Request if the necessary context identifiers are missing
     if (!projectId || !userId) {

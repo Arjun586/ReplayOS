@@ -73,7 +73,7 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
 // Generates a complex mock incident with distributed traces for system testing
 export const simulateTraffic = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { id: projectId } = req.params;
+        const { projectId } = req.params;
 
         // Verifies the project's existence before generating simulated telemetry
         const project = await prisma.project.findUnique({ where: { id: projectId } });
