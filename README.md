@@ -101,6 +101,12 @@ git clone https://github.com/Arjun586/ReplayOS.git
 cd ReplayOS
 ```
 
+**3. Installation**
+Install the project dependencies defined in `package.json`:
+
+```
+npm install
+```
 
 **2. Environment Configuration**
 To run this project, you will need to add the following environment variables to a .env file located in the /server directory. A template file .env.example is provided in the repository for reference.
